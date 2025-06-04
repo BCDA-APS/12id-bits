@@ -6,13 +6,13 @@ ICONFIG_VERSION: 2.0.0
 # Add additional configuration for use with your instrument.
 
 ### The short name for the databroker catalog.
-DATABROKER_CATALOG: &databroker_catalog 12idb
+DATABROKER_CATALOG: &databroker_catalog 12ide
 
 ### RunEngine configuration
 RUN_ENGINE:
     DEFAULT_METADATA:
-        beamline_id: 12-ID-B
-        instrument_name: APS 12-ID-B SAXS/WAXS
+        beamline_id: 12-ID-E
+        instrument_name: APS 12-ID-E SAXS/WAXS
         proposal_id: commissioning
         databroker_catalog: *databroker_catalog
 
