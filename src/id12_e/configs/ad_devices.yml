@@ -1,0 +1,47 @@
+# Area detectors
+
+apstools.devices.area_detector_factory.ad_creator:
+
+# looks like S12-PILATUS1 is piltus2m which would be SAXS detector
+# the other gives me serial number (dec2763) but no other info.
+
+# looks like 12idcPIL is pilatus 900K-APS
+# that is WAXS detector, special order (corner cut out) 
+
+# . S12-PILATUS2:cam1: and 12idcPIL:cam1:
+
+
+- name: pilatus2m
+  prefix: "S12-PILATUS1:"
+  # IOC host: green
+  labels: [ "area_detector", "detectors", "SAXS" ]
+  plugins:
+  - cam:
+      class: id12_common.devices.area_detector.ID12_PilatusCam_V34
+  - image
+  - pva
+
+- name: pilatus900k
+  prefix: "12idcPIL:"
+  # IOC host: 
+  labels: [ "area_detector", "detectors", "WAXS" ]
+  plugins:
+  - cam:
+      class: id12_common.devices.area_detector.ID12_PilatusCam_V34
+  - image
+  - pva
+
+# Other plugin sugegstions from 8-ID:
+#   - codec1:
+#       # needed by PVA and HDF
+#       class: id8_common.devices.area_detector.ID8_CodecPlugin
+#   - hdf1:
+#       class: id8_common.devices.area_detector.ID8_EpicsFileNameHDF5Plugin
+#       read_path_template: /gdata/dm/8IDI/2025-2/
+#       write_path_template: /gdata/dm/8IDI/2025-2/
+#       kind: normal
+#   - overlay1: { class: id8_common.devices.area_detector.ID8_OverlayPlugin }
+#   - process1: { class: id8_common.devices.area_detector.ID8_ProcessPlugin }
+#   - roi1: { class: id8_common.devices.area_detector.ID8_ROIPlugin }
+#   - stats1: { class: id8_common.devices.area_detector.ID8_StatsPlugin }
+#   - transform1: { class: id8_common.devices.area_detector.ID8_TransformPlugin }

@@ -82,7 +82,9 @@ else:
     from bluesky import plan_stubs as bps  # noqa: F401
     from bluesky import plans as bp  # noqa: F401
 
+from .plans import *  # noqa: E402, F403
+
 RE(make_devices(clear=False, file="devices.yml"))  # Create the devices.
 
 if host_on_aps_subnet():
-    RE(make_devices(clear=False, file="device_aps_only.yml"))
+    RE(make_devices(clear=False, file="devices_aps_only.yml"))

@@ -24,6 +24,7 @@ from apsbits.core.run_engine_init import init_RE
 # Utility functions
 from apsbits.utils.aps_functions import aps_dm_setup
 from apsbits.utils.aps_functions import host_on_aps_subnet
+# from apsbits.utils.baseline_setup import setup_baseline_stream
 
 # Configuration functions
 from apsbits.utils.config_loaders import load_config
@@ -98,9 +99,11 @@ else:
     from bluesky import plan_stubs as bps  # noqa: F401
     from bluesky import plans as bp  # noqa: F401
 
+from .plans import *  # noqa: E402, F403
 
 # Experiment specific logic, device and plan loading
 RE(make_devices(clear=False, file="devices.yml"))  # Create the devices.
+RE(make_devices(clear=False, file="ad_devices.yml"))  # area detectors
 
 if host_on_aps_subnet():
     RE(make_devices(clear=False, file="devices_aps_only.yml"))

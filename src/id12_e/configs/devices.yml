@@ -1,13 +1,111 @@
 # Guarneri-style device YAML configuration
 
+# TODO:
+# PTC10 has lots of customization possible.  Need to know more...
+# temperature controller PTC10	12idTEMP2:tc1:
+
+# What PVs are available for this shutter?  Is it a standard design?
+# Is there a class available in apstools?
+# C shutter control 		12ida2:rShtrc2:
+
 apsbits.utils.sim_creator.predefined_device:
 - {creator: ophyd.sim.motor, name: sim_motor}
 - {creator: ophyd.sim.noisy_det, name: sim_det}
 
+apstools.devices.motor_factory.mb_creator:
+- name: beamstop
+  labels: ["baseline"]
+  prefix: "12ideSFT:"
+  class_name: BeamstopStage
+  motors:
+    hor: m4
+    ver: m5
+- name: gantry_stage
+  labels: ["gantry", "baseline"]
+  prefix: "12idc:"
+  class_name: GantryStage
+  motors:
+    hor: m6
+    ver: m4
+    z: m4
+- name: gibeamstop
+  labels: ["grazing_incidence", "baseline"]
+  prefix: "12ideSFT:"
+  class_name: GrazingIncidenceBeamstopStage
+  motors:
+    hor: m1
+    ver: m2
+- name: monochromator
+  labels: ["monochromator", "baseline"]
+  prefix: "12ida2:"
+  class_name: MonochromatorStage
+  motors:
+    theta: m19
+    theta2: m20
+    chi2: m21
+    slide2: m22
+- name: sample_stage
+  labels: ["sample", "baseline"]
+  prefix: "12idc:"
+  class_name: SampleStage
+  motors:
+    hor: m8
+    ver: m7
+- name: saxs_det_stage
+  labels: ["detector_stage", "baseline", "SAXS"]
+  prefix: "12idcACS1:"
+  class_name: SaxsDetectorStage
+  motors:
+    x: m5
+    y: m3
+    z: m1
+    bb: m7  # beam block
+- name: waxs_det_stage
+  labels: ["detector_stage", "baseline", "WAXS"]
+  prefix: "12idcACS1:"
+  class_name: WaxsDetectorStage
+  motors:
+    x: m6
+    y: m4
+    z: m2
+    bb: m8  # beam block
+
 apstools.devices.SimulatedApsPssShutterWithStatus:
-- name: shutter
+- name: sim_shutter
   labels: ["shutters"]
 
+id12_common.devices.dg645_delay_gen.SocketDG645DelayGen:
+# NOTE: the support does not communicate yet with the dg645
+- name: idb_dg645  # delay generator
+  address: 10.54.122.66:5025
+  labels: ["delaygen"]
+- name: idc_dg645  # delay generator
+  address: 10.54.122.104:5025
+  labels: ["delaygen"]
+
+id12_common.devices.shutters.ID12_ApsPssShutter:
+- name: uniblitz  # fast shutter
+  prefix: ""
+  labels: ["shutters"]
+  open_pv: 12idc:uniblitz:shutter:open
+  close_pv: 12idc:uniblitz:shutter:close
+  delay_s: 0.01
+
+
+id12_common.devices.struck3820.ID12_Struck3820:
+- name: struck
+  prefix: "12idc:3820:"
+  labels: ["scalers", "detectors"]
+
+ophyd.scaler.ScalerCH:
+- name: scaler1
+  prefix: 12idc:scaler1
+  labels: ["scalers", "detectors"]
+
+ophyd.EpicsMotor:
+- {name: idc_m1, prefix: 12idc:m1, labels: ["motor"]}
+- {name: idc_m2, prefix: 12idc:m2, labels: ["motor"]}
+- {name: githeta, prefix: 12idc:m3, labels: ["motor", "grazing_incidence", "baseline"]}
 
 ## THIS ARE EXAMPLES OF OTHER DEVICES THAT YOU CAN USE
 # ophyd.Signal:
@@ -20,35 +118,3 @@ apstools.devices.SimulatedApsPssShutterWithStatus:
 # - name: slit1
 #   prefix: ioc:Slit1
 #   labels: ["slits"]
-
-# hkl.SimulatedE4CV:
-# - name: sim4c
-#   prefix: ""
-#   labels: ["diffractometer"]
-
-# ophyd.scaler.ScalerCH:
-# - name: scaler1
-#   prefix: vme:scaler1
-#   labels: ["scalers", "detectors"]
-
-# ophyd.EpicsMotor:
-# - {name: m1, prefix: gp:m1, labels: ["motor"]}
-# - {name: m2, prefix: gp:m2, labels: ["motor"]}
-# - {name: m3, prefix: gp:m3, labels: ["motor"]}
-# - {name: m4, prefix: gp:m4, labels: ["motor"]}
-
-# apstools.devices.ad_creator:
-#   - name: adsimdet
-#     prefix: "ad:"
-#     labels: ["area_detector", "detectors"]
-#     plugins:
-#       - cam:
-#           class: apstools.devices.SimDetectorCam_V34
-#       - image
-#       - pva
-#       - hdf1:
-#           class: apstools.devices.AD_EpicsFileNameHDF5Plugin
-#           read_path_template: "/path/to/bluesky/tmp/"
-#           write_path_template: "/path/to/ioc/tmp/"
-#       - roi1
-#       - stats1

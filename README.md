@@ -6,17 +6,29 @@ Instrument Github Repository to be used with BITS structure at the APS
 ## Installing your own BITS instrument
 
 ```bash
-export ENV_NAME=BITS_env
-conda create -y -n $ENV_NAME python=3.11
+export ENV_NAME=12id-bits
+conda create -y -n $ENV_NAME python=3.11 hkl
 conda activate $ENV_NAME
 pip install apsbits
 ```
 
+This command installs BITS from its source repository:
+
+```bash
+pip install -U git+https://github.com/BCDA-APS/BITS
+```
 
 ## Creating a New Instrument
+
 ```bash
 export YOUR_INSTRUMENT_NAME=new_instrument
 create-bits $YOUR_INSTRUMENT_NAME
+```
+
+
+## Installing Your New Instrument(s)
+
+```bash
 pip install -e .
 ```
 
