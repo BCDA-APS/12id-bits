@@ -102,8 +102,9 @@ else:
 from .plans import *  # noqa: E402, F403
 
 # Experiment specific logic, device and plan loading
-RE(make_devices(clear=False, file="devices.yml"))  # Create the devices.
-RE(make_devices(clear=False, file="ad_devices.yml"))  # area detectors
+RE(make_devices(file="devices.yml", clear=False))
+RE(make_devices(file="ad_devices.yml", clear=False))
+RE(make_devices(file="shutters_op.yml", clear=False))
 
 if host_on_aps_subnet():
     RE(make_devices(clear=False, file="devices_aps_only.yml"))
