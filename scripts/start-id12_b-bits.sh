@@ -20,4 +20,3 @@ conda activate "${BLUESKY_ENVIRONMENT}"
 
 echo "CONDA_PREFIX = '${CONDA_PREFIX}'"
 ipython -i -c "from ${STARTUP_MODULE} import *"
-

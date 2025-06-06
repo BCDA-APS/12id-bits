@@ -6,7 +6,7 @@ apstools.devices.area_detector_factory.ad_creator:
 # the other gives me serial number (dec2763) but no other info.
 
 # looks like 12idcPIL is pilatus 900K-APS
-# that is WAXS detector, special order (corner cut out) 
+# that is WAXS detector, special order (corner cut out)
 
 # . S12-PILATUS2:cam1: and 12idcPIL:cam1:
 
@@ -23,7 +23,7 @@ apstools.devices.area_detector_factory.ad_creator:
 
 - name: pilatus900k
   prefix: "12idcPIL:"
-  # IOC host: 
+  # IOC host:
   labels: [ "area_detector", "detectors", "WAXS" ]
   plugins:
   - cam:

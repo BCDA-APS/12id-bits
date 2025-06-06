@@ -11,6 +11,7 @@ from ophyd.areadetector.cam import PilatusDetectorCam
 logger = logging.getLogger(__name__)
 logger.info(__file__)
 
+
 class CamUpdates_V34(CamMixin_V34, CamBase):
     """
     Updates to CamBase since v22.

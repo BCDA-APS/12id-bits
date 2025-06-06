@@ -21,7 +21,7 @@ from ophyd import Component
 from ophyd import Device
 from ophyd import Signal
 
-BNC_MAP: dict[str, dict[str, int|str]] = {
+BNC_MAP: dict[str, dict[str, int | str]] = {
     # DG645_INSTR: {DG645_AMP, DG645_OUT}
     "Base": {"amp": 2.5, "out": "T0"},
     "Shutter": {"amp": 4.0, "out": "AB"},
@@ -42,6 +42,7 @@ DG645_TSRC = [
     "Line",
 ]
 
+
 class SocketDG645DelayGen(Device):
     """DG645 with socket communications"""
 
@@ -53,7 +54,7 @@ class SocketDG645DelayGen(Device):
     buffer_size = 1024  # assuming short communications
 
     def __init__(self, *args, address="0.0.0.0:5025", **kwargs):
-        """ . """
+        """."""
         super().__init__(*args, **kwargs)
         self.address.put(address)
 
@@ -83,11 +84,11 @@ class SocketDG645DelayGen(Device):
         """Retrieve text from socket buffer up to self.buffer_size."""
         return self._socket.recv(self.buffer_size).decode("UTF-8")
 
-    def sock_put(self, command: str, count: int=0):
+    def sock_put(self, command: str, count: int = 0):
         """Send command to socket."""
         self._socket.send(bytes(command, "UTF-8"))
 
-    def sock_put_get(self, command: str, count: int=0) -> str:
+    def sock_put_get(self, command: str, count: int = 0) -> str:
         """Send command to socket, return response."""
         self.sock_put(command)
         return self.sock_get()
@@ -96,7 +97,7 @@ class SocketDG645DelayGen(Device):
     def dg645_status(self) -> dict[str, str]:
         """Status of the DG645."""
         return {
-            "Serial Poll STATUS": self.sock_put_get('*STB?\n').strip(),
-            "Standard Event STATUS": self.sock_put_get('*ESR?\n').strip(),
-            "Instrument STATUS": self.sock_put_get('INSR?\n').strip(),
+            "Serial Poll STATUS": self.sock_put_get("*STB?\n").strip(),
+            "Standard Event STATUS": self.sock_put_get("*ESR?\n").strip(),
+            "Instrument STATUS": self.sock_put_get("INSR?\n").strip(),
         }
