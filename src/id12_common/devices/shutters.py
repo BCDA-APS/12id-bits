@@ -10,6 +10,7 @@ from ophyd import EpicsSignal
 from ophyd import EpicsSignalRO
 from ophyd import FormattedComponent
 
+
 class ID12_ApsPssShutter(ApsPssShutter):
     """Adjust the delay time as a kwarg."""
 

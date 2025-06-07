@@ -22,6 +22,7 @@ import socket  # https://docs.python.org/3/library/socket.html
 from ophyd import Component
 from ophyd import Device
 from ophyd import Signal
+from ophyd.signal import AttributeSignal
 
 BNC_MAP: dict[str, dict[str, int | str]] = {
     # DG645_INSTR: {DG645_AMP, DG645_OUT}
@@ -54,9 +55,9 @@ class Socket:
 
     def __init__(
         self,
-        host: str ="localhost",
+        host: str = "localhost",
         port: int = 5025,
-        buffer_size: int = 1024  # assuming short communications
+        buffer_size: int = 1024,  # assuming short communications
     ):
         """."""
         self.host = host
@@ -80,12 +81,6 @@ class Socket:
         return self.receive()
 
 
-# class SocketSignal(Signal):
-#     """Socket-based signal"""
-#     
-#     # TODO: How to treat socket(host, port) as a singleton?
-
-
 class SocketDG645DelayGen(Device):
     """DG645 with socket communications"""
 
@@ -93,13 +88,14 @@ class SocketDG645DelayGen(Device):
 
     address = Component(Signal, value="", kind="config")
     burst_maxtime_limit = Component(Signal, value=41, kind="config")
+    trigger_source = Component(
+        AttributeSignal,
+        attr="_trigger_source",
+        write_access=True,
+        kind="config",
+    )
 
-    def __init__(
-        self,
-        *args,
-        address:str="localhost:5025",
-        **kwargs
-    ):
+    def __init__(self, *args, address: str = "localhost:5025", **kwargs):
         """."""
         host, port = address.split(":")
         self._socket = Socket(host=host, port=int(port))
@@ -119,6 +115,38 @@ class SocketDG645DelayGen(Device):
     # sock_put(DG645_ADDR, sprintf("LAMP 3, %0.2f\n", DG645_AMP[3]))
     # sock_put(DG645_ADDR, sprintf("LAMP 4, %0.2f\n", DG645_AMP[4]))
     # dg645_dspamp
+
+    @property
+    def _trigger_source(self) -> str:
+        """Return the DG645 trigger source (text)."""
+        # TODO: implement a cache to avoid unnecessary comms.
+        idx = int(self._socket.send_receive("TSRC?\r").strip())
+        return DG645_TSRC[idx]  # as string
+
+    @_trigger_source.setter
+    def _trigger_source(self, value: int | str) -> str:
+        """Set the DG645 trigger source (int or text)."""
+        if isinstance(value, str):
+            if value not in DG645_TSRC:
+                raise ValueError(
+                    f"Unknown trigger source {value=!r}."
+                    # .
+                    f" Must be one of: {DG645_TSRC}"
+                )
+            value = DG645_TSRC.index(value)
+
+        elif isinstance(value, int):
+            if value < 0 or value >= len(DG645_TSRC):
+                raise ValueError(
+                    "Trigger source value must be in range 0 .."
+                    # .
+                    f" {len(DG645_TSRC)}  Received {value=}"
+                )
+        else:
+            raise TypeError(f"Unexpected {value=!r}")
+
+        if value >= 0:
+            self._socket.send(f"TSRC {value}\r")
 
     # TODO: apply ophyd's get/put/set methods
 
@@ -156,7 +184,7 @@ class SocketDG645DelayGen(Device):
             if value >= len(DG645_TSRC):
                 raise ValueError(
                     "Trigger source value must be in range 0 .."
-                    #.
+                    # .
                     f" {len(DG645_TSRC)}  Received {value=}"
                 )
         else:
