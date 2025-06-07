@@ -70,18 +70,6 @@ apstools.devices.SimulatedApsPssShutterWithStatus:
 - name: sim_shutter
   labels: [ "shutters" ]
 
-id12_common.devices.dg645_delay_gen.SocketDG645DelayGen:
-# NOTE: the support does not communicate yet with the dg645
-- name: idb_dg645 # delay generator
-  address: "10.54.122.66:5025"
-  labels: [ "delaygen" ]
-  # trigger source 5 "Single shot"
-
-- name: idc_dg645 # delay generator
-  address: "10.54.122.104:5025"
-  labels: [ "delaygen" ]
-  # trigger source 3 "Single shot external rising edges"
-
 id12_common.devices.struck3820.ID12_Struck3820:
 - name: struck
   prefix: "12idc:3820:"
