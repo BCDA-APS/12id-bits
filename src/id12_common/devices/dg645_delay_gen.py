@@ -55,7 +55,7 @@ class AttributeSignalEnum(AttributeSignal):
         """."""
         super().__init__(*args, **kwargs)
         self._metadata.update(enum_strs=enum_strs)
-    
+
     @property
     def enum_strs(self) -> list[str]:
         """Return the enumeration list."""
