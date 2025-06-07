@@ -95,7 +95,7 @@ class Socket:
     def send(self, command: str, count: int = 0):
         """Send command to socket."""
         command = f"{command.strip()}{self.output_terminator}"
-        self._socket.send(bytes(f"{command.strip()}", "UTF-8"))
+        self._socket.send(bytes(command, "UTF-8"))
 
     def send_receive(self, command: str, count: int = 0) -> str:
         """Send command to socket, return response."""
