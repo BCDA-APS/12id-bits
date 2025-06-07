@@ -6,6 +6,8 @@ Communications via ethernet to reduce overhead (status checking).
 SPEC support here:
   /home/beams15/S12STAFF/spec_macros/std_macros/DET_common.mac
   /home/beams15/S12STAFF/spec_macros/std_macros/DG645_lee.mac
+  https://github.com/APS-12IDB-GISAXS/spec_macros
+  https://github.com/BCDA-APS/12id-bits
 
 =======  ===================
 station  address
@@ -43,6 +45,47 @@ DG645_TSRC = [
 ]
 
 
+class Socket:
+    """Manage socket communications."""
+
+    # https://certif.com/spec_help/sockets.html
+    # sock_io  deprecated
+    # sock_par  refactor with socket package case-by-case
+
+    def __init__(
+        self,
+        host: str ="localhost",
+        port: int = 5025,
+        buffer_size: int = 1024  # assuming short communications
+    ):
+        """."""
+        self.host = host
+        self.port = port
+        self.buffer_size = buffer_size
+
+        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket.connect((host, port))
+
+    def receive(self) -> str:
+        """Retrieve text from socket buffer up to self.buffer_size."""
+        return self._socket.recv(self.buffer_size).decode("UTF-8")
+
+    def send(self, command: str, count: int = 0):
+        """Send command to socket."""
+        self._socket.send(bytes(command, "UTF-8"))
+
+    def send_receive(self, command: str, count: int = 0) -> str:
+        """Send command to socket, return response."""
+        self.send(command)
+        return self.receive()
+
+
+# class SocketSignal(Signal):
+#     """Socket-based signal"""
+#     
+#     # TODO: How to treat socket(host, port) as a singleton?
+
+
 class SocketDG645DelayGen(Device):
     """DG645 with socket communications"""
 
@@ -51,53 +94,76 @@ class SocketDG645DelayGen(Device):
     address = Component(Signal, value="", kind="config")
     burst_maxtime_limit = Component(Signal, value=41, kind="config")
 
-    buffer_size = 1024  # assuming short communications
-
-    def __init__(self, *args, address="0.0.0.0:5025", **kwargs):
+    def __init__(
+        self,
+        *args,
+        address:str="localhost:5025",
+        **kwargs
+    ):
         """."""
+        host, port = address.split(":")
+        self._socket = Socket(host=host, port=int(port))
+
         super().__init__(*args, **kwargs)
         self.address.put(address)
 
-        host, port = address.split(":")
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.connect((host, int(port)))
+    # from SPEC
+    # dg645_config
+    # dg645_init
 
-        # from SPEC
-        # dg645_config
-        # dg645_init
+    # self.sock_put(f"LAMP 1, {DG645_AMP[1]:0.2f}\n")
+    # ...
 
-        # self.sock_put(f"LAMP 1, {DG645_AMP[1]:0.2f}\n")
-        # ...
-
-        # sock_put(DG645_ADDR, sprintf("LAMP 1, %0.2f\n", DG645_AMP[1]))
-        # sock_put(DG645_ADDR, sprintf("LAMP 2, %0.2f\n", DG645_AMP[2]))
-        # sock_put(DG645_ADDR, sprintf("LAMP 3, %0.2f\n", DG645_AMP[3]))
-        # sock_put(DG645_ADDR, sprintf("LAMP 4, %0.2f\n", DG645_AMP[4]))
-        # dg645_dspamp
+    # sock_put(DG645_ADDR, sprintf("LAMP 1, %0.2f\n", DG645_AMP[1]))
+    # sock_put(DG645_ADDR, sprintf("LAMP 2, %0.2f\n", DG645_AMP[2]))
+    # sock_put(DG645_ADDR, sprintf("LAMP 3, %0.2f\n", DG645_AMP[3]))
+    # sock_put(DG645_ADDR, sprintf("LAMP 4, %0.2f\n", DG645_AMP[4]))
+    # dg645_dspamp
 
     # TODO: apply ophyd's get/put/set methods
 
-    # https://certif.com/spec_help/sockets.html
-    # sock_io  deprecated
-    # sock_par  refactor with socket package case-by-case
-    def sock_get(self) -> str:
-        """Retrieve text from socket buffer up to self.buffer_size."""
-        return self._socket.recv(self.buffer_size).decode("UTF-8")
+    ######################################
+    # SPEC-inspired commands
 
-    def sock_put(self, command: str, count: int = 0):
-        """Send command to socket."""
-        self._socket.send(bytes(command, "UTF-8"))
-
-    def sock_put_get(self, command: str, count: int = 0) -> str:
-        """Send command to socket, return response."""
-        self.sock_put(command)
-        return self.sock_get()
+    @property
+    def dg645_identity(self) -> dict[str, str]:
+        """DG645 Model."""
+        return {
+            "DG645 model": self._socket.send_receive("*IDN?\n").strip(),
+        }
 
     @property
     def dg645_status(self) -> dict[str, str]:
         """Status of the DG645."""
         return {
-            "Serial Poll STATUS": self.sock_put_get("*STB?\n").strip(),
-            "Standard Event STATUS": self.sock_put_get("*ESR?\n").strip(),
-            "Instrument STATUS": self.sock_put_get("INSR?\n").strip(),
+            "Serial Poll STATUS": self._socket.send_receive("*STB?\n").strip(),
+            "Standard Event STATUS": self._socket.send_receive("*ESR?\n").strip(),
+            "Instrument STATUS": self._socket.send_receive("INSR?\n").strip(),
         }
+
+    def dg645_tsrc(self, value: int | str) -> str:
+        """Set trigger source."""
+        if isinstance(value, str):
+            if value not in DG645_TSRC:
+                raise ValueError(
+                    f"Unknown trigger source {value=!r}."
+                    # .
+                    f" Must be one of: {DG645_TSRC}"
+                )
+            value = DG645_TSRC.index(value)
+
+        elif isinstance(value, int):
+            if value >= len(DG645_TSRC):
+                raise ValueError(
+                    "Trigger source value must be in range 0 .."
+                    #.
+                    f" {len(DG645_TSRC)}  Received {value=}"
+                )
+        else:
+            raise TypeError(f"Unexpected {value=!r}")
+
+        if value >= 0:
+            self._socket.send(f"TSRC {value}\r")
+
+        idx = int(self._socket.send_receive("TSRC?\r").strip())
+        return DG645_TSRC[idx]  # as string
