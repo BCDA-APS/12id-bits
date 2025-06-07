@@ -46,6 +46,15 @@ DG645_TSRC = [
 ]
 
 
+class AttributeSignalEnum(AttributeSignal):
+    """AttributeSignal with enum_strs support."""
+
+    def __init__(self, *args, enum_strs: list[str] = None, **kwargs):
+        """."""
+        super().__init__(*args, **kwargs)
+        self._metadata.update(enum_strs=enum_strs)
+
+
 class Socket:
     """Manage socket communications."""
 
@@ -89,10 +98,11 @@ class SocketDG645DelayGen(Device):
     address = Component(Signal, value="", kind="config")
     burst_maxtime_limit = Component(Signal, value=41, kind="config")
     trigger_source = Component(
-        AttributeSignal,
+        AttributeSignalEnum,
         attr="_trigger_source",
         write_access=True,
         kind="config",
+        enum_strs=DG645_TSRC,
     )
 
     def __init__(self, *args, address: str = "localhost:5025", **kwargs):
@@ -121,32 +131,32 @@ class SocketDG645DelayGen(Device):
         """Return the DG645 trigger source (text)."""
         # TODO: implement a cache to avoid unnecessary comms.
         idx = int(self._socket.send_receive("TSRC?\r").strip())
-        return DG645_TSRC[idx]  # as string
+        return self.enum_strs[idx]  # as string
 
     @_trigger_source.setter
     def _trigger_source(self, value: int | str) -> str:
         """Set the DG645 trigger source (int or text)."""
         if isinstance(value, str):
-            if value not in DG645_TSRC:
+            if value not in self.enum_strs:
                 raise ValueError(
                     f"Unknown trigger source {value=!r}."
                     # .
-                    f" Must be one of: {DG645_TSRC}"
+                    f" Must be one of: {self.enum_strs}"
                 )
-            value = DG645_TSRC.index(value)
+            value = self.enum_strs.index(value)
 
         elif isinstance(value, int):
-            if value < 0 or value >= len(DG645_TSRC):
+            if value < 0 or value >= len(self.enum_strs):
                 raise ValueError(
                     "Trigger source value must be in range 0 .."
                     # .
-                    f" {len(DG645_TSRC)}  Received {value=}"
+                    f" {len(self.enum_strs)}  Received {value=}"
                 )
         else:
             raise TypeError(f"Unexpected {value=!r}")
 
         if value >= 0:
-            self._socket.send(f"TSRC {value}\r")
+            self._socket.send(f"TSRC {value}\r")  # DG645 uses int value
 
     # TODO: apply ophyd's get/put/set methods
 
