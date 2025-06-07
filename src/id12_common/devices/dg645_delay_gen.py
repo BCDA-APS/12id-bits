@@ -24,7 +24,7 @@ from ophyd import Device
 from ophyd import Signal
 from ophyd.signal import AttributeSignal
 
-BNC_MAP: dict[str, dict[str, int | str]] = {
+DG645_BNC_MAP: dict[str, dict[str, int | str]] = {
     # DG645_INSTR: {DG645_AMP, DG645_OUT}
     "Base": {"amp": 2.5, "out": "T0"},
     "Shutter": {"amp": 4.0, "out": "AB"},
@@ -32,9 +32,11 @@ BNC_MAP: dict[str, dict[str, int | str]] = {
     "Struck_ADV": {"amp": 2.5, "out": "EF"},
     "Struck_INH": {"amp": 4.5, "out": "GH"},
 }
-
 DG645_CH: list[str] = "T0 T1 A B C D E F G H".split()
-
+DG645_DEFAULT_BUFFER_SIZE: int = 1024  # assuming short communications
+DG645_DEFAULT_HOST: str = "localhost"
+DG645_DEFAULT_PORT: int = 5025
+DG645_DEFAULT_OUTPUT_TERMINATOR: str = "\n"
 DG645_TSRC = [
     "Internal",
     "External rising edges",
@@ -58,22 +60,25 @@ class AttributeSignalEnum(AttributeSignal):
 class Socket:
     """Manage socket communications."""
 
+    # For expected features, see:
     # https://certif.com/spec_help/sockets.html
     # sock_io  deprecated
     # sock_par  refactor with socket package case-by-case
 
+    # TODO: connected?
+
     def __init__(
         self,
-        host: str = "localhost",
-        port: int = 5025,
-        buffer_size: int = 1024,  # assuming short communications
-        output_terminator: str = "\n",
+        host: str = DG645_DEFAULT_HOST,
+        port: int = DG645_DEFAULT_PORT,
+        buffer_size: int = DG645_DEFAULT_BUFFER_SIZE,
+        output_terminator: str = DG645_DEFAULT_OUTPUT_TERMINATOR,
     ):
         """."""
         self.host = host
         self.port = port
         self.buffer_size = buffer_size
-        self.output_terminator = output_terminator,
+        self.output_terminator = (output_terminator,)
 
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.connect((host, port))
