@@ -55,6 +55,11 @@ class AttributeSignalEnum(AttributeSignal):
         """."""
         super().__init__(*args, **kwargs)
         self._metadata.update(enum_strs=enum_strs)
+    
+    @property
+    def enum_strs(self) -> list[str]:
+        """Return the enumeration list."""
+        return self._metadata["enum_strs"]
 
 
 class Socket:
@@ -131,13 +136,22 @@ class SocketDG645DelayGen(Device):
         enum_strs=DG645_TSRC,
     )
 
-    def __init__(self, *args, address: str = "localhost:5025", **kwargs):
+    def __init__(
+        self,
+        *args,
+        address: str = f"{DG645_DEFAULT_HOST}:{DG645_DEFAULT_PORT}",
+        trigger_source: str = None,
+        **kwargs,
+    ):
         """."""
         host, port = address.split(":")
         self._socket = Socket(host=host, port=int(port))
 
         super().__init__(*args, **kwargs)
+
         self.address.put(address)
+        if trigger_source is not None:
+            self.trigger_source.put(trigger_source)
 
     # from SPEC
     # dg645_config
@@ -152,7 +166,7 @@ class SocketDG645DelayGen(Device):
     # sock_put(DG645_ADDR, sprintf("LAMP 4, %0.2f\n", DG645_AMP[4]))
     # dg645_dspamp
 
-    # Property methods
+    # Property methods (used with AttributeSignal Components)
 
     @property
     def _identity(self) -> str:
@@ -178,26 +192,27 @@ class SocketDG645DelayGen(Device):
     def _trigger_source(self) -> str:
         """Return the DG645 trigger source (text)."""
         # TODO: implement a cache to avoid unnecessary comms.
-        return self.enum_strs[int(self._socket.send_receive("TSRC?"))]  # as string
+        idx = int(self._socket.send_receive("TSRC?"))
+        return self.trigger_source.enum_strs[idx]  # as string
 
     @_trigger_source.setter
     def _trigger_source(self, value: int | str) -> str:
         """Set the DG645 trigger source (int or text)."""
         if isinstance(value, str):
-            if value not in self.enum_strs:
+            if value not in self.trigger_source.enum_strs:
                 raise ValueError(
                     f"Unknown trigger source {value=!r}."
                     # .
-                    f" Must be one of: {self.enum_strs}"
+                    f" Must be one of: {self.trigger_source.enum_strs}"
                 )
-            value = self.enum_strs.index(value)
+            value = self.trigger_source.enum_strs.index(value)
 
         elif isinstance(value, int):
-            if value < 0 or value >= len(self.enum_strs):
+            if value < 0 or value >= len(self.trigger_source.enum_strs):
                 raise ValueError(
                     "Trigger source value must be in range 0 .."
                     # .
-                    f" {len(self.enum_strs)}  Received {value=}"
+                    f" {len(self.trigger_source.enum_strs)}  Received {value=}"
                 )
         else:
             raise TypeError(f"Unexpected {value=!r}")
