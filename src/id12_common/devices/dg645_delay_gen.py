@@ -67,22 +67,25 @@ class Socket:
         host: str = "localhost",
         port: int = 5025,
         buffer_size: int = 1024,  # assuming short communications
+        output_terminator: str = "\n",
     ):
         """."""
         self.host = host
         self.port = port
         self.buffer_size = buffer_size
+        self.output_terminator = output_terminator,
 
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.connect((host, port))
 
     def receive(self) -> str:
         """Retrieve text from socket buffer up to self.buffer_size."""
-        return self._socket.recv(self.buffer_size).decode("UTF-8")
+        return self._socket.recv(self.buffer_size).decode("UTF-8").strip()
 
     def send(self, command: str, count: int = 0):
         """Send command to socket."""
-        self._socket.send(bytes(command, "UTF-8"))
+        command = f"{command.strip()}{self.output_terminator}"
+        self._socket.send(bytes(f"{command.strip()}", "UTF-8"))
 
     def send_receive(self, command: str, count: int = 0) -> str:
         """Send command to socket, return response."""
@@ -91,7 +94,7 @@ class Socket:
 
 
 class SocketDG645DelayGen(Device):
-    """DG645 with socket communications"""
+    """DG645 with socket communications."""
 
     # TODO:
 
@@ -142,35 +145,33 @@ class SocketDG645DelayGen(Device):
     # sock_put(DG645_ADDR, sprintf("LAMP 4, %0.2f\n", DG645_AMP[4]))
     # dg645_dspamp
 
-    def _send_receive(self, command: str) -> str:
-        """Send command and return value."""
-        return self._socket.send_receive(command).strip()
+    # Property methods
 
     @property
     def _identity(self) -> str:
-        """DG645 Model."""
-        return self._send_receive("*IDN?\n")
+        """DG645 Model (text)."""
+        return self._socket.send_receive("*IDN?")
 
     @property
     def _instrument_status(self) -> str:
-        """DG645 Instrument STATUS."""
-        return self._send_receive("INSR?\n")
+        """DG645 Instrument STATUS (text)."""
+        return self._socket.send_receive("INSR?")
 
     @property
     def _serial_poll_status(self) -> str:
-        """DG645 Serial Poll STATUS."""
-        return self._send_receive("*STB?\n")
+        """DG645 Serial Poll STATUS (text)."""
+        return self._socket.send_receive("*STB?")
 
     @property
     def _standard_event_status(self) -> str:
-        """DG645 Standard Event STATUS."""
-        return self._send_receive("*ESR?\n")
+        """DG645 Standard Event STATUS (text)."""
+        return self._socket.send_receive("*ESR?")
 
     @property
     def _trigger_source(self) -> str:
         """Return the DG645 trigger source (text)."""
         # TODO: implement a cache to avoid unnecessary comms.
-        return self.enum_strs[int(self._send_receive("TSRC?\r"))]  # as string
+        return self.enum_strs[int(self._socket.send_receive("TSRC?"))]  # as string
 
     @_trigger_source.setter
     def _trigger_source(self, value: int | str) -> str:
@@ -195,50 +196,4 @@ class SocketDG645DelayGen(Device):
             raise TypeError(f"Unexpected {value=!r}")
 
         if value >= 0:
-            self._socket.send(f"TSRC {value}\r")  # DG645 uses int value
-
-    ######################################
-    # SPEC-inspired commands
-
-    # @property
-    # def dg645_identity(self) -> dict[str, str]:
-    #     """DG645 Model."""
-    #     return {
-    #         "DG645 model": self._socket.send_receive("*IDN?\n").strip(),
-    #     }
-
-    # @property
-    # def dg645_status(self) -> dict[str, str]:
-    #     """Status of the DG645."""
-    #     return {
-    #         "Serial Poll STATUS": self._socket.send_receive("*STB?\n").strip(),
-    #         "Standard Event STATUS": self._socket.send_receive("*ESR?\n").strip(),
-    #         "Instrument STATUS": self._socket.send_receive("INSR?\n").strip(),
-    #     }
-
-    # def dg645_tsrc(self, value: int | str) -> str:
-    #     """Set trigger source."""
-    #     if isinstance(value, str):
-    #         if value not in DG645_TSRC:
-    #             raise ValueError(
-    #                 f"Unknown trigger source {value=!r}."
-    #                 # .
-    #                 f" Must be one of: {DG645_TSRC}"
-    #             )
-    #         value = DG645_TSRC.index(value)
-
-    #     elif isinstance(value, int):
-    #         if value >= len(DG645_TSRC):
-    #             raise ValueError(
-    #                 "Trigger source value must be in range 0 .."
-    #                 # .
-    #                 f" {len(DG645_TSRC)}  Received {value=}"
-    #             )
-    #     else:
-    #         raise TypeError(f"Unexpected {value=!r}")
-
-    #     if value >= 0:
-    #         self._socket.send(f"TSRC {value}\r")
-
-    #     idx = int(self._socket.send_receive("TSRC?\r").strip())
-    #     return DG645_TSRC[idx]  # as string
+            self._socket.send(f"TSRC {value}")  # DG645 uses int value
