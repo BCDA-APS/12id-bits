@@ -103,6 +103,8 @@ class SocketDG645DelayGen(Device):
 
     # TODO:
 
+    # ophyd Components
+
     address = Component(Signal, value="", kind="config")
     burst_maxtime_limit = Component(Signal, value=41, kind="config")
     identity = Component(AttributeSignal, attr="_identity", kind="config")
