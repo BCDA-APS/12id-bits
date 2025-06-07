@@ -78,7 +78,7 @@ class Socket:
         self.host = host
         self.port = port
         self.buffer_size = buffer_size
-        self.output_terminator = (output_terminator,)
+        self.output_terminator = output_terminator
 
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.connect((host, port))
