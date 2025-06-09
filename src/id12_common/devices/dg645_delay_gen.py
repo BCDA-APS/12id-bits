@@ -23,6 +23,7 @@ import time
 
 from ophyd import Component
 from ophyd import Device
+from ophyd import DeviceStatus
 from ophyd import Signal
 from ophyd.signal import AttributeSignal
 
@@ -40,7 +41,6 @@ DG645_OUTPUT_MAP = {
     "EF" : {"instrument": "Struck_ADV", "amplitude": 2.5},
     "GH" : {"instrument": "Struck_INH", "amplitude": 4.5},
 }
-DG645_AMP = [2.5, 4.0, 3.0, 2.5, 4.5]
 DG645_CH: list[str] = "T0 T1 A B C D E F G H".split()
 DG645_DEFAULT_BUFFER_SIZE: int = 1024  # assuming short communications
 DG645_DEFAULT_HOST: str = "localhost"
@@ -277,6 +277,7 @@ DG645_ERROR_CODES: dict[int, list[str, str]] = {
         "The error buffer is full. Subsequent errors have been dropped.",
     ],
 }
+DG645_AMP = [v["amplitude"] for v in DG645_OUTPUT_MAP.values()]
 
 
 class AttributeSignalRO(AttributeSignal):
@@ -353,10 +354,10 @@ class SocketDG645DelayGen(Device):
 
     PARAMETERS
 
-    address *str* :
-        Network host and port of the DG645, in the form of 'HOST:PORT".
-        Host may be a name or a set of IPv4 numbers.  The ':' separator
-        is required.
+    host *str* :
+        Network host or IPv4 number string.
+    port *int* :
+        Network port of the DG645.  Default: 5025.
     trigger_source *str* | None :
         Trigger source text (or None to accept the current DG645 setting).
 
@@ -381,6 +382,10 @@ class SocketDG645DelayGen(Device):
     polarityEF = Component(AttributeSignal, attr="_polarity3", kind="normal")
     polarityGH = Component(AttributeSignal, attr="_polarity4", kind="normal")
 
+    # TODO: delay, duration, basis channel: refactor?
+    # TODO: dg645_set instr delay duration
+    # How to set these terms?  Not ideal as an ophyd.Signal
+    # since two parameters are specified.  Need local cache.
     delayT0 = Component(AttributeSignalRO, attr="_delay0", kind="normal")
     delayT1 = Component(AttributeSignalRO, attr="_delay1", kind="normal")
     delayA = Component(AttributeSignalRO, attr="_delay2", kind="normal")
@@ -392,7 +397,8 @@ class SocketDG645DelayGen(Device):
     delayG = Component(AttributeSignalRO, attr="_delay8", kind="normal")
     delayH = Component(AttributeSignalRO, attr="_delay9", kind="normal")
 
-    address = Component(Signal, value="", kind="config")
+    host = Component(Signal, value=DG645_DEFAULT_HOST, kind="config")
+    port = Component(Signal, value=DG645_DEFAULT_PORT, kind="config")
     burst_maxtime_limit = Component(Signal, value=41, kind="config")
     delaytextT0 = Component(AttributeSignalRO, attr="_delaytext0", kind="config")
     delaytextT1 = Component(AttributeSignalRO, attr="_delaytext1", kind="config")
@@ -435,20 +441,28 @@ class SocketDG645DelayGen(Device):
     def __init__(
         self,
         *args,
-        address: str = f"{DG645_DEFAULT_HOST}:{DG645_DEFAULT_PORT}",
+        host: str = DG645_DEFAULT_HOST,
+        port: int = DG645_DEFAULT_PORT,
         trigger_source: str = None,
         **kwargs,
     ):
         """."""
-        host, port = address.split(":")
         self._socket = Socket(host=host, port=int(port))
         self._last_error_code = -1  # Unknown, at the start.
 
         super().__init__(*args, **kwargs)
 
-        self.address.put(address)
+        self.host.put(host)
+        self.port.put(port)
         if trigger_source is not None:
             self.trigger_source.put(trigger_source)
+
+    def trigger(self) -> DeviceStatus:
+        """Trigger the DG645 and return the status object."""
+        status = DeviceStatus(self)
+        self._initiate_trigger()
+        status.set_finished()
+        return status
 
     #################
     # User-facing Support methods
@@ -491,24 +505,28 @@ class SocketDG645DelayGen(Device):
     def _get_channel_delay(self, channel: int | str) -> tuple[int, float]:
         """(internal) Get DG645 basis & delay for 'channel'."""
         ch = self._validate_enum(channel, "channel", DG645_CH)
-        basis, offset = self._socket.send_receive(f"DLAY? {ch}").split(",")
-        return int(basis), float(offset)
+        basis, duration = self._socket.send_receive(f"DLAY? {ch}").split(",")
+        return int(basis), float(duration)
 
     def _get_channel_delay_text(self, channel: int | str) -> str:
         """(internal) Get DG645 basis & delay for 'channel' as text."""
         ch = self._validate_enum(channel, "channel", DG645_CH)
-        basis, offset = self._socket.send_receive(f"DLAY? {ch}").split(",")
+        basis, duration = self._socket.send_receive(f"DLAY? {ch}").split(",")
         basis = int(basis)
-        offset = float(offset)
+        duration = float(duration)
 
         if basis == 0:
             basis = ch
         text = (
             f"Channel {ch} ({DG645_CH[ch]!r}) delay set to"
             f" Channel {basis} ({DG645_CH[basis]!r})"
-            f" plus {offset:e} seconds"
+            f" plus {duration:e} seconds"
         )
         return text
+
+    def _initiate_trigger(self) -> None:
+        """(internal) Initiate DG645 (internal) or arm (external) trigger."""
+        self._socket.send("*TRG")
 
     def _set_channel_delay(self, channel: int | str, basis: int, delay: float) -> None:
         """(internal) Set DG645 'delay' for 'channel'."""
