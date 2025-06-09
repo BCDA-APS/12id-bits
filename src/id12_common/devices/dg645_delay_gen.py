@@ -28,20 +28,27 @@ from ophyd.signal import AttributeSignal
 
 logger = logging.getLogger(__name__)
 
-DG645_BNC_MAP: dict[str, dict[str, int | str]] = {
-    # DG645_INSTR: {DG645_AMP, DG645_OUT}
-    "Base": {"amp": 2.5, "out": "T0"},
-    "Shutter": {"amp": 4.0, "out": "AB"},
-    "Detector": {"amp": 3.0, "out": "CD"},
-    "Struck_ADV": {"amp": 2.5, "out": "EF"},
-    "Struck_INH": {"amp": 4.5, "out": "GH"},
+DG645_OUTPUT_MAP = {
+    # DG645 front-panel BNC connectors.
+    #
+    # timing pulses
+    "TO" : {"instrument": "Base", "amplitude": 2.5},
+    #
+    # output pulses
+    "AB" : {"instrument": "Shutter", "amplitude": 4.0},
+    "CD" : {"instrument": "Detector", "amplitude": 3.0},
+    "EF" : {"instrument": "Struck_ADV", "amplitude": 2.5},
+    "GH" : {"instrument": "Struck_INH", "amplitude": 4.5},
 }
+DG645_AMP = [2.5, 4.0, 3.0, 2.5, 4.5]
 DG645_CH: list[str] = "T0 T1 A B C D E F G H".split()
 DG645_DEFAULT_BUFFER_SIZE: int = 1024  # assuming short communications
 DG645_DEFAULT_HOST: str = "localhost"
 DG645_DEFAULT_PORT: int = 5025
 DG645_DEFAULT_OUTPUT_TERMINATOR: str = "\n"
 DG645_DEFAULT_TIMEOUT = 2.0  # seconds
+DG645_AMPLITUDE_ABS_MAX = 5.0
+DG645_AMPLITUDE_ABS_MIN = 0.5
 DG645_TSRC = [
     "Internal",
     "External rising edges",
@@ -282,7 +289,7 @@ class AttributeSignalRO(AttributeSignal):
 
 
 class AttributeSignalEnum(AttributeSignal):
-    """AttributeSignal with enum_strs support."""
+    """AttributeSignal with enum_strs support (writeable)."""
 
     def __init__(self, *args, enum_strs: list[str] = None, **kwargs):
         """."""
@@ -359,10 +366,44 @@ class SocketDG645DelayGen(Device):
         ~check_error
         ~last_error_brief
         ~last_error_full
+        ~set_defaults
     """
+
+    amplitudeT0 = Component(AttributeSignal, attr="_amplitude0", kind="normal")
+    amplitudeAB = Component(AttributeSignal, attr="_amplitude1", kind="normal")
+    amplitudeCD = Component(AttributeSignal, attr="_amplitude2", kind="normal")
+    amplitudeEF = Component(AttributeSignal, attr="_amplitude3", kind="normal")
+    amplitudeGH = Component(AttributeSignal, attr="_amplitude4", kind="normal")
+
+    polarityT0 = Component(AttributeSignal, attr="_polarity0", kind="normal")
+    polarityAB = Component(AttributeSignal, attr="_polarity1", kind="normal")
+    polarityCD = Component(AttributeSignal, attr="_polarity2", kind="normal")
+    polarityEF = Component(AttributeSignal, attr="_polarity3", kind="normal")
+    polarityGH = Component(AttributeSignal, attr="_polarity4", kind="normal")
+
+    delayT0 = Component(AttributeSignalRO, attr="_delay0", kind="normal")
+    delayT1 = Component(AttributeSignalRO, attr="_delay1", kind="normal")
+    delayA = Component(AttributeSignalRO, attr="_delay2", kind="normal")
+    delayB = Component(AttributeSignalRO, attr="_delay3", kind="normal")
+    delayC = Component(AttributeSignalRO, attr="_delay4", kind="normal")
+    delayD = Component(AttributeSignalRO, attr="_delay5", kind="normal")
+    delayE = Component(AttributeSignalRO, attr="_delay6", kind="normal")
+    delayF = Component(AttributeSignalRO, attr="_delay7", kind="normal")
+    delayG = Component(AttributeSignalRO, attr="_delay8", kind="normal")
+    delayH = Component(AttributeSignalRO, attr="_delay9", kind="normal")
 
     address = Component(Signal, value="", kind="config")
     burst_maxtime_limit = Component(Signal, value=41, kind="config")
+    delaytextT0 = Component(AttributeSignalRO, attr="_delaytext0", kind="config")
+    delaytextT1 = Component(AttributeSignalRO, attr="_delaytext1", kind="config")
+    delaytextA = Component(AttributeSignalRO, attr="_delaytext2", kind="config")
+    delaytextB = Component(AttributeSignalRO, attr="_delaytext3", kind="config")
+    delaytextC = Component(AttributeSignalRO, attr="_delaytext4", kind="config")
+    delaytextD = Component(AttributeSignalRO, attr="_delaytext5", kind="config")
+    delaytextE = Component(AttributeSignalRO, attr="_delaytext6", kind="config")
+    delaytextF = Component(AttributeSignalRO, attr="_delaytext7", kind="config")
+    delaytextG = Component(AttributeSignalRO, attr="_delaytext8", kind="config")
+    delaytextH = Component(AttributeSignalRO, attr="_delaytext9", kind="config")
     last_error_code = Component(
         AttributeSignalRO,
         attr="_last_error_code",
@@ -432,6 +473,13 @@ class SocketDG645DelayGen(Device):
         """Return the DG645 full error message from the code."""
         return DG645_ERROR_CODES.get(code, ["unknown"])[-1]
 
+    def set_defaults(self) -> None:
+        """(dg645_init) Set default amplitudes for all DG645 output channels."""
+        self.amplitude1.put(DG645_AMP[1])
+        self.amplitude2.put(DG645_AMP[2])
+        self.amplitude3.put(DG645_AMP[3])
+        self.amplitude4.put(DG645_AMP[4])
+
     #################
     # Internal Support methods
 
@@ -440,21 +488,243 @@ class SocketDG645DelayGen(Device):
         self._last_error_code = int(self._socket.send_receive("LERR?"))
         return self._last_error_code
 
-    # from SPEC
-    # dg645_config
-    # dg645_init
+    def _get_channel_delay(self, channel: int | str) -> tuple[int, float]:
+        """(internal) Get DG645 basis & delay for 'channel'."""
+        ch = self._validate_enum(channel, "channel", DG645_CH)
+        basis, offset = self._socket.send_receive(f"DLAY? {ch}").split(",")
+        return int(basis), float(offset)
 
-    # self.sock_put(f"LAMP 1, {DG645_AMP[1]:0.2f}\n")
-    # ...
+    def _get_channel_delay_text(self, channel: int | str) -> str:
+        """(internal) Get DG645 basis & delay for 'channel' as text."""
+        ch = self._validate_enum(channel, "channel", DG645_CH)
+        basis, offset = self._socket.send_receive(f"DLAY? {ch}").split(",")
+        basis = int(basis)
+        offset = float(offset)
 
-    # sock_put(DG645_ADDR, sprintf("LAMP 1, %0.2f\n", DG645_AMP[1]))
-    # sock_put(DG645_ADDR, sprintf("LAMP 2, %0.2f\n", DG645_AMP[2]))
-    # sock_put(DG645_ADDR, sprintf("LAMP 3, %0.2f\n", DG645_AMP[3]))
-    # sock_put(DG645_ADDR, sprintf("LAMP 4, %0.2f\n", DG645_AMP[4]))
-    # dg645_dspamp
+        if basis == 0:
+            basis = ch
+        text = (
+            f"Channel {ch} ({DG645_CH[ch]!r}) delay set to"
+            f" Channel {basis} ({DG645_CH[basis]!r})"
+            f" plus {offset:e} seconds"
+        )
+        return text
+
+    def _set_channel_delay(self, channel: int | str, basis: int, delay: float) -> None:
+        """(internal) Set DG645 'delay' for 'channel'."""
+        ch = self._validate_enum(channel, "channel", DG645_CH)
+        self._socket.send(f"DLAY {ch},{basis},{delay}")
+
+    def _get_level_amplitude(self, channel: int | str) -> float:
+        """(internal) Get DG645 level amplitude for output 'channel'."""
+        ch = self._validate_enum(channel, "output channel", list(DG645_OUTPUT_MAP))
+        return float(self._socket.send_receive(f"LAMP? {ch}"))
+
+    def _set_level_amplitude(self, channel: int | str, amplitude: float) -> None:
+        """(internal) Set DG645 level 'amplitude' for output 'channel'."""
+        ch = self._validate_enum(channel, "output channel", list(DG645_OUTPUT_MAP))
+        if not (DG645_AMPLITUDE_ABS_MIN <= abs(amplitude) <= DG645_AMPLITUDE_ABS_MAX):
+            raise ValueError(
+                f"Received {amplitude=:%f} for {channel=}."
+                f"  Must be in range {DG645_AMPLITUDE_ABS_MIN}"
+                f" <= |amplitude| <="
+                f"  {DG645_AMPLITUDE_ABS_MAX}"
+            )
+        self._socket.send(f"LAMP {ch},{amplitude:0.2f}")
+
+    def _get_level_polarity(self, channel: int | str) -> int:
+        """(internal) Get DG645 level polarity for output 'channel'."""
+        ch = self._validate_enum(channel, "output channel", list(DG645_OUTPUT_MAP))
+        return int(self._socket.send_receive(f"LPOL? {ch}"))
+
+    def _set_level_polarity(self, channel: int | str, polarity: float) -> None:
+        """(internal) Set DG645 level 'polarity' for output 'channel'."""
+        ch = self._validate_enum(channel, "output channel", list(DG645_OUTPUT_MAP))
+        if polarity not in (0, 1):
+            raise ValueError(
+                f"Received {polarity=} for {channel=}.  Must be either 0 or 1."
+            )
+        self._socket.send(f"LPOL {ch},{polarity}")
+
+    def _validate_enum(
+        self,
+        value: str | int,
+        label: str,
+        choices: list[str],
+        only_str: bool=False,
+    ) -> str | int:
+        """(internal) Validate 'value' from 'choices', return final value."""
+        vv = value
+        if isinstance(vv, str):
+            if value not in choices:
+                raise KeyError(
+                    f"Unknown {label}={vv!r}.  Expect one of {choices!r}."
+                )
+        if only_str:
+            if not isinstance(vv, str):
+                raise TypeError(f"Must be text.  Received {label}={vv!r}")
+        else:
+            if isinstance(vv, str):
+                vv = choices.index(vv)
+            hi = len(choices) - 1
+            if not (0 <= vv <= hi):
+                raise KeyError(
+                    f"Unknown {label}={vv}.  Must be in range 0..{hi}."
+                )
+        return vv
 
     #################
     # Property methods (used with AttributeSignal Components)
+
+    @property
+    def _amplitude0(self) -> float:
+        """(internal) DG645 channel 0 amplitude."""
+        return self._get_level_amplitude(0)
+
+    @_amplitude0.setter
+    def _amplitude0(self, value: float) -> None:
+        """(internal) Set DG645 channel 0 amplitude."""
+        self._set_level_amplitude(0, value)
+
+    @property
+    def _amplitude1(self) -> float:
+        """(internal) DG645 channel 1 amplitude."""
+        return self._get_level_amplitude(1)
+
+    @_amplitude1.setter
+    def _amplitude1(self, value: float) -> None:
+        """(internal) Set DG645 channel 1 amplitude."""
+        self._set_level_amplitude(1, value)
+
+    @property
+    def _amplitude2(self) -> float:
+        """(internal) DG645 channel 2 amplitude."""
+        return self._get_level_amplitude(2)
+
+    @_amplitude2.setter
+    def _amplitude2(self, value: float) -> None:
+        """(internal) Set DG645 channel 2 amplitude."""
+        self._set_level_amplitude(2, value)
+
+    @property
+    def _amplitude3(self) -> float:
+        """(internal) DG645 channel 3 amplitude."""
+        return self._get_level_amplitude(3)
+
+    @_amplitude3.setter
+    def _amplitude3(self, value: float) -> None:
+        """(internal) Set DG645 channel 3 amplitude."""
+        self._set_level_amplitude(3, value)
+
+    @property
+    def _amplitude4(self) -> float:
+        """(internal) DG645 channel 4 amplitude."""
+        return self._get_level_amplitude(4)
+
+    @_amplitude4.setter
+    def _amplitude4(self, value: float) -> None:
+        """(internal) Set DG645 channel 4 amplitude."""
+        self._set_level_amplitude(4, value)
+
+    @property
+    def _delay0(self) -> float:
+        """(internal) DG645 channel 0 delay_time."""
+        return self._get_channel_delay(0)[1]
+
+    @property
+    def _delay1(self) -> float:
+        """(internal) DG645 channel 1 delay_time."""
+        return self._get_channel_delay(1)[1]
+
+    @property
+    def _delay2(self) -> float:
+        """(internal) DG645 channel 2 delay_time."""
+        return self._get_channel_delay(2)[1]
+
+    @property
+    def _delay3(self) -> float:
+        """(internal) DG645 channel 3 delay_time."""
+        return self._get_channel_delay(3)[1]
+
+    @property
+    def _delay4(self) -> float:
+        """(internal) DG645 channel 4 delay_time."""
+        return self._get_channel_delay(4)[1]
+
+    @property
+    def _delay5(self) -> float:
+        """(internal) DG645 channel 5 delay_time."""
+        return self._get_channel_delay(5)[1]
+
+    @property
+    def _delay6(self) -> float:
+        """(internal) DG645 channel 6 delay_time."""
+        return self._get_channel_delay(6)[1]
+
+    @property
+    def _delay7(self) -> float:
+        """(internal) DG645 channel 7 delay_time."""
+        return self._get_channel_delay(7)[1]
+
+    @property
+    def _delay8(self) -> float:
+        """(internal) DG645 channel 8 delay_time."""
+        return self._get_channel_delay(8)[1]
+
+    @property
+    def _delay9(self) -> float:
+        """(internal) DG645 channel 9 delay_time."""
+        return self._get_channel_delay(9)[1]
+
+    @property
+    def _delaytext0(self) -> float:
+        """(internal) DG645 channel 0 delay text."""
+        return self._get_channel_delay_text(0)
+
+    @property
+    def _delaytext1(self) -> float:
+        """(internal) DG645 channel 1 delay text."""
+        return self._get_channel_delay_text(1)
+
+    @property
+    def _delaytext2(self) -> float:
+        """(internal) DG645 channel 2 delay text."""
+        return self._get_channel_delay_text(2)
+
+    @property
+    def _delaytext3(self) -> float:
+        """(internal) DG645 channel 3 delay text."""
+        return self._get_channel_delay_text(3)
+
+    @property
+    def _delaytext4(self) -> float:
+        """(internal) DG645 channel 4 delay text."""
+        return self._get_channel_delay_text(4)
+
+    @property
+    def _delaytext5(self) -> float:
+        """(internal) DG645 channel 5 delay text."""
+        return self._get_channel_delay_text(5)
+
+    @property
+    def _delaytext6(self) -> float:
+        """(internal) DG645 channel 6 delay text."""
+        return self._get_channel_delay_text(6)
+
+    @property
+    def _delaytext7(self) -> float:
+        """(internal) DG645 channel 7 delay text."""
+        return self._get_channel_delay_text(7)
+
+    @property
+    def _delaytext8(self) -> float:
+        """(internal) DG645 channel 8 delay text."""
+        return self._get_channel_delay_text(8)
+
+    @property
+    def _delaytext9(self) -> float:
+        """(internal) DG645 channel 9 delay text."""
+        return self._get_channel_delay_text(9)
 
     @property
     def _identify(self) -> str:
@@ -465,6 +735,56 @@ class SocketDG645DelayGen(Device):
     def _instrument_status(self) -> str:
         """(internal) DG645 Instrument STATUS (text)."""
         return self._socket.send_receive("INSR?")
+
+    @property
+    def _polarity0(self) -> int:
+        """(internal) DG645 channel 0 polarity."""
+        return self._get_level_polarity(0)
+
+    @_polarity0.setter
+    def _polarity0(self, value: int) -> None:
+        """(internal) Set DG645 channel 0 polarity."""
+        self._set_level_polarity(0, value)
+
+    @property
+    def _polarity1(self) -> int:
+        """(internal) DG645 channel 1 polarity."""
+        return self._get_level_polarity(1)
+
+    @_polarity1.setter
+    def _polarity1(self, value: int) -> None:
+        """(internal) Set DG645 channel 1 polarity."""
+        self._set_level_polarity(1, value)
+
+    @property
+    def _polarity2(self) -> int:
+        """(internal) DG645 channel 2 polarity."""
+        return self._get_level_polarity(2)
+
+    @_polarity2.setter
+    def _polarity2(self, value: int) -> None:
+        """(internal) Set DG645 channel 2 polarity."""
+        self._set_level_polarity(2, value)
+
+    @property
+    def _polarity3(self) -> int:
+        """(internal) DG645 channel 3 polarity."""
+        return self._get_level_polarity(3)
+
+    @_polarity3.setter
+    def _polarity(self, value: int) -> None:
+        """(internal) Set DG645 channel 3 polarity."""
+        self._set_level_polarity(3, value)
+
+    @property
+    def _polarity4(self) -> int:
+        """(internal) DG645 channel 4 polarity."""
+        return self._get_level_polarity(4)
+
+    @_polarity.setter
+    def _polarity4(self, value: int) -> None:
+        """(internal) Set DG645 channel 4 polarity."""
+        self._set_level_polarity(4, value)
 
     @property
     def _serial_poll_status(self) -> str:
