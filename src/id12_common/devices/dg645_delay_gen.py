@@ -33,13 +33,13 @@ DG645_OUTPUT_MAP = {
     # DG645 front-panel BNC connectors.
     #
     # timing pulses
-    "TO" : {"instrument": "Base", "amplitude": 2.5},
+    "TO": {"instrument": "Base", "amplitude": 2.5},
     #
     # output pulses
-    "AB" : {"instrument": "Shutter", "amplitude": 4.0},
-    "CD" : {"instrument": "Detector", "amplitude": 3.0},
-    "EF" : {"instrument": "Struck_ADV", "amplitude": 2.5},
-    "GH" : {"instrument": "Struck_INH", "amplitude": 4.5},
+    "AB": {"instrument": "Shutter", "amplitude": 4.0},
+    "CD": {"instrument": "Detector", "amplitude": 3.0},
+    "EF": {"instrument": "Struck_ADV", "amplitude": 2.5},
+    "GH": {"instrument": "Struck_INH", "amplitude": 4.5},
 }
 DG645_CH: list[str] = "T0 T1 A B C D E F G H".split()
 DG645_DEFAULT_BUFFER_SIZE: int = 1024  # assuming short communications
@@ -340,7 +340,12 @@ class Socket:
         command = f"{command.strip()}{self.output_terminator}"
         self._socket.send(bytes(command, "UTF-8"))
 
-    def send_receive(self, command: str, count: int = 0, delay_s: float = 0,) -> str:
+    def send_receive(
+        self,
+        command: str,
+        count: int = 0,
+        delay_s: float = 0,
+    ) -> str:
         """Send command to socket, return response."""
         self.send(command)
         if delay_s > 0:
@@ -417,19 +422,13 @@ class SocketDG645DelayGen(Device):
     )
     identify = Component(AttributeSignalRO, attr="_identify", kind="config")
     instrument_status = Component(
-        AttributeSignalRO,
-        attr="_instrument_status",
-        kind="config"
+        AttributeSignalRO, attr="_instrument_status", kind="config"
     )
     serial_poll_status = Component(
-        AttributeSignalRO,
-        attr="_serial_poll_status",
-        kind="config"
+        AttributeSignalRO, attr="_serial_poll_status", kind="config"
     )
     standard_event_status = Component(
-        AttributeSignalRO,
-        attr="_standard_event_status",
-        kind="config"
+        AttributeSignalRO, attr="_standard_event_status", kind="config"
     )
     trigger_source = Component(
         AttributeSignalEnum,
@@ -569,15 +568,13 @@ class SocketDG645DelayGen(Device):
         value: str | int,
         label: str,
         choices: list[str],
-        only_str: bool=False,
+        only_str: bool = False,
     ) -> str | int:
         """(internal) Validate 'value' from 'choices', return final value."""
         vv = value
         if isinstance(vv, str):
             if value not in choices:
-                raise KeyError(
-                    f"Unknown {label}={vv!r}.  Expect one of {choices!r}."
-                )
+                raise KeyError(f"Unknown {label}={vv!r}.  Expect one of {choices!r}.")
         if only_str:
             if not isinstance(vv, str):
                 raise TypeError(f"Must be text.  Received {label}={vv!r}")
@@ -586,9 +583,7 @@ class SocketDG645DelayGen(Device):
                 vv = choices.index(vv)
             hi = len(choices) - 1
             if not (0 <= vv <= hi):
-                raise KeyError(
-                    f"Unknown {label}={vv}.  Must be in range 0..{hi}."
-                )
+                raise KeyError(f"Unknown {label}={vv}.  Must be in range 0..{hi}.")
         return vv
 
     #################
