@@ -493,6 +493,39 @@ class SocketDG645DelayGen(Device):
         self.amplitude3.put(DG645_AMP[3])
         self.amplitude4.put(DG645_AMP[4])
 
+    def set_delay_T0(self, delay: float) -> None:
+        """(dg645set_1cycle) Set delay for T0 output."""
+        # TODO: refactor to ophyd
+        self._set_channel_delay(1, 0, delay)
+
+    def set_delay_AB(self, delay: float, duration: float) -> None:
+        """(dg645set_AB) Set delays for AB output."""
+        # TODO: refactor to ophyd
+        ch = 2
+        self._set_channel_delay(ch, 0, delay)
+        self._set_channel_delay(ch + 1, ch, duration)
+
+    def set_delay_CD(self, delay: float, duration: float) -> None:
+        """(dg645set_CD) Set delays for CD output."""
+        # TODO: refactor to ophyd
+        ch = 4
+        self._set_channel_delay(ch, 0, delay)
+        self._set_channel_delay(ch + 1, ch, duration)
+
+    def set_delay_EF(self, delay: float, duration: float) -> None:
+        """(dg645set_EF) Set delays for EF output."""
+        # TODO: refactor to ophyd
+        ch = 6
+        self._set_channel_delay(ch, 0, delay)
+        self._set_channel_delay(ch + 1, ch, duration)
+
+    def set_delay_GH(self, delay: float, duration: float) -> None:
+        """(dg645set_GH) Set delays for GH output."""
+        # TODO: refactor to ophyd
+        ch = 8
+        self._set_channel_delay(ch, 0, delay)
+        self._set_channel_delay(ch + 1, ch, duration)
+
     #################
     # Internal Support methods
 
@@ -528,7 +561,7 @@ class SocketDG645DelayGen(Device):
         self._socket.send("*TRG")
 
     def _set_channel_delay(self, channel: int | str, basis: int, delay: float) -> None:
-        """(internal) Set DG645 'delay' for 'channel'."""
+        """(internal) (dg645_dlay) Set DG645 'delay' for 'channel'."""
         ch = self._validate_enum(channel, "channel", DG645_CH)
         self._socket.send(f"DLAY {ch},{basis},{delay}")
 
