@@ -7,11 +7,11 @@ apstools.devices.ApsMachineParametersDevice:
 
 id12_common.devices.dg645_delay_gen.SocketDG645DelayGen:
 - name: dg645_idb # delay generator
-  address: "10.54.122.66:5025"
+  host: "10.54.122.66"
   labels: [ "delaygen" ]
   trigger_source: "Single shot"  # 5
 
 - name: dg645_idc # delay generator
-  address: "10.54.122.104:5025"
+  host: "10.54.122.104"
   labels: [ "delaygen" ]
   trigger_source: "Single shot external rising edges"  # 3
