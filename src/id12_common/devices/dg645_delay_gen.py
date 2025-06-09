@@ -410,6 +410,7 @@ class SocketDG645DelayGen(Device):
     host = Component(Signal, value=DG645_DEFAULT_HOST, kind="config")
     port = Component(Signal, value=DG645_DEFAULT_PORT, kind="config")
     burst_maxtime_limit = Component(Signal, value=41, kind="config")
+    burst_enable = Component(AttributeSignal, attr="_burst_enable", kind="normal")
     delaytextT0 = Component(AttributeSignalRO, attr="_delaytext0", kind="config")
     delaytextT1 = Component(AttributeSignalRO, attr="_delaytext1", kind="config")
     delaytextA = Component(AttributeSignalRO, attr="_delaytext2", kind="config")
@@ -676,6 +677,17 @@ class SocketDG645DelayGen(Device):
     def _amplitude4(self, value: float) -> None:
         """(internal) Set DG645 channel 4 amplitude."""
         self._set_level_amplitude(4, value)
+
+    @property
+    def _burst_enable(self) -> bool:
+        """(internal) DG645 burst mode."""
+        return self._socket.send_receive("BURM?") == "1"
+
+    @_burst_enable.setter
+    def _burst_enable(self, value: bool) -> None:
+        """(internal) Set DG645 channel 0 amplitude."""
+        vv = 1 if value else 0
+        self._socket.send_receive(f"BURM {vv}")
 
     @property
     def _delay0(self) -> float:
