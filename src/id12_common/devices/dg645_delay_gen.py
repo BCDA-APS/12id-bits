@@ -49,6 +49,8 @@ DG645_DEFAULT_OUTPUT_TERMINATOR: str = "\n"
 DG645_DEFAULT_TIMEOUT = 2.0  # seconds
 DG645_AMPLITUDE_ABS_MAX = 5.0
 DG645_AMPLITUDE_ABS_MIN = 0.5
+DG645_BURST_MAX = 25.0  # TODO: ?or? 2000 - 10ns
+DG645_BURST_MIN = 100.0e-9
 DG645_TSRC = [
     "Internal",
     "External rising edges",
@@ -369,15 +371,26 @@ class SocketDG645DelayGen(Device):
     .. rubric:: User-facing Support methods
     .. autosummary::
 
+        ~burst_init
+        ~burst_set
         ~check_error
         ~last_error_brief
         ~last_error_full
         ~set_defaults
-        ~set_delay_T0
         ~set_delay_AB
         ~set_delay_CD
         ~set_delay_EF
         ~set_delay_GH
+        ~set_delay_T0
+
+    EXAMPLE::
+
+        >>> dg645 = SocketDG645DelayGen(host="localhost", name="dg645")
+        >>> dg645.identify.get()
+        burst_init
+        >>> dg645.burst_init()
+        >>> dg645.burst_mode_enable.get()
+        True
     """
 
     amplitudeT0 = Component(AttributeSignal, attr="_amplitude0", kind="normal")
@@ -410,7 +423,11 @@ class SocketDG645DelayGen(Device):
     host = Component(Signal, value=DG645_DEFAULT_HOST, kind="config")
     port = Component(Signal, value=DG645_DEFAULT_PORT, kind="config")
     burst_maxtime_limit = Component(Signal, value=41, kind="config")
-    burst_enable = Component(AttributeSignal, attr="_burst_enable", kind="normal")
+    burst_count = Component(AttributeSignal, attr="_burst_count", kind="config")
+    burst_delay = Component(AttributeSignal, attr="_burst_delay", kind="config")
+    burst_mode_enable = Component(AttributeSignal, attr="_burst_mode", kind="config")
+    burst_period = Component(AttributeSignal, attr="_burst_period", kind="config")
+    burst_T0_config = Component(AttributeSignal, attr="_burst_T0_config", kind="config")
     delaytextT0 = Component(AttributeSignalRO, attr="_delaytext0", kind="config")
     delaytextT1 = Component(AttributeSignalRO, attr="_delaytext1", kind="config")
     delaytextA = Component(AttributeSignalRO, attr="_delaytext2", kind="config")
@@ -451,7 +468,18 @@ class SocketDG645DelayGen(Device):
         trigger_source: str = None,
         **kwargs,
     ):
-        """."""
+        """
+        Constructor
+
+        PARAMETERS
+
+        host *str* :
+            Network host or IPv4 number string.
+        port *int* :
+            Network port of the DG645.  Default: 5025.
+        trigger_source *str* | None :
+            Trigger source text (or None to accept the current DG645 setting).
+        """
         self._socket = Socket(host=host, port=int(port))
         self._last_error_code = -1  # Unknown, at the start.
 
@@ -471,6 +499,24 @@ class SocketDG645DelayGen(Device):
 
     #################
     # User-facing Support methods
+
+    def burst_init(self) -> None:
+        """Initialize burst parameters."""
+        self.burst_mode_enable.put(True)
+        time.sleep(0.01)
+        self.burst_T0_config.put(True)
+        time.sleep(0.01)
+        self.burst_delay.put(0)
+        time.sleep(0.01)
+
+    def burst_set(self, cycles: int, period: float, delay: float) -> None:
+        """Set burst parameters."""
+        self.burst_count.put(cycles)
+        time.sleep(0.01)
+        self.burst_period.put(period)
+        time.sleep(0.01)
+        self.burst_delay.put(delay)
+        time.sleep(0.01)
 
     def check_error(self, step: str) -> None:
         """Request the last DG645 error code, log if non-zero."""
@@ -679,15 +725,72 @@ class SocketDG645DelayGen(Device):
         self._set_level_amplitude(4, value)
 
     @property
-    def _burst_enable(self) -> bool:
+    def _burst_count(self) -> int:
+        """(internal) DG645 burst count."""
+        return int(self._socket.send_receive("BURC?"))
+
+    @_burst_count.setter
+    def _burst_count(self, value: int) -> None:
+        """(internal) Set DG645 burst count."""
+        hi = self.burst_maxtime_limit.get()
+        if not (0 <= value <= hi):
+            raise ValueError(
+                f"Burst count value must be in range 0 .. {hi}." f"  Received {value=}."
+            )
+        self._socket.send(f"BURC {value}")
+
+    @property
+    def _burst_delay(self) -> float:
+        """(internal) DG645 burst delay."""
+        return float(self._socket.send_receive("BURD?"))
+
+    @_burst_delay.setter
+    def _burst_delay(self, value: float) -> None:
+        """(internal) Set DG645 burst delay."""
+        self._socket.send(f"BURD {value:e}")
+
+    @property
+    def _burst_mode(self) -> bool:
         """(internal) DG645 burst mode."""
         return self._socket.send_receive("BURM?") == "1"
 
-    @_burst_enable.setter
-    def _burst_enable(self, value: bool) -> None:
-        """(internal) Set DG645 channel 0 amplitude."""
+    @_burst_mode.setter
+    def _burst_mode(self, value: bool) -> None:
+        """(internal) Set DG645 burst mode."""
         vv = 1 if value else 0
-        self._socket.send_receive(f"BURM {vv}")
+        self._socket.send(f"BURM {vv}")
+
+    @property
+    def _burst_period(self) -> float:
+        """(internal) DG645 burst period."""
+        return float(self._socket.send_receive("BURP?"))
+
+    @_burst_period.setter
+    def _burst_period(self, value: float) -> None:
+        """(internal) Set DG645 burst period."""
+        if not (DG645_BURST_MIN <= value <= DG645_BURST_MAX):
+            raise ValueError(
+                "Burst period value must be in range"
+                f" {DG645_BURST_MIN} .. {DG645_BURST_MAX}"
+                # .
+                f"  Received {value=}."
+            )
+        self._socket.send(f"BURP {value:e}")
+
+    @property
+    def _burst_T0_config(self) -> int:
+        """(internal) DG645 burst T0 configuration."""
+        return int(self._socket.send_receive("BURT?"))
+
+    @_burst_T0_config.setter
+    def _burst_T0_config(self, value: int) -> None:
+        """(internal) Set DG645 burst period."""
+        if value not in (0, 1):
+            raise ValueError(
+                "Burst T0 configuration value must be 0 or 1."
+                # .
+            )
+        self._socket.send(f"BURT {value}")
 
     @property
     def _delay0(self) -> float:
