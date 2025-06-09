@@ -373,6 +373,11 @@ class SocketDG645DelayGen(Device):
         ~last_error_brief
         ~last_error_full
         ~set_defaults
+        ~set_delay_T0
+        ~set_delay_AB
+        ~set_delay_CD
+        ~set_delay_EF
+        ~set_delay_GH
     """
 
     amplitudeT0 = Component(AttributeSignal, attr="_amplitude0", kind="normal")
