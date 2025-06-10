@@ -371,8 +371,6 @@ class SocketDG645DelayGen(Device):
     .. rubric:: User-facing Support methods
     .. autosummary::
 
-        ~burst_init
-        ~burst_set
         ~check_error
         ~last_error_brief
         ~last_error_full
@@ -499,24 +497,6 @@ class SocketDG645DelayGen(Device):
 
     #################
     # User-facing Support methods
-
-    def burst_init(self) -> None:
-        """Initialize burst parameters."""
-        self.burst_mode_enable.put(True)
-        time.sleep(0.01)
-        self.burst_T0_config.put(True)
-        time.sleep(0.01)
-        self.burst_delay.put(0)
-        time.sleep(0.01)
-
-    def burst_set(self, cycles: int, period: float, delay: float) -> None:
-        """Set burst parameters."""
-        self.burst_count.put(cycles)
-        time.sleep(0.01)
-        self.burst_period.put(period)
-        time.sleep(0.01)
-        self.burst_delay.put(delay)
-        time.sleep(0.01)
 
     def check_error(self, step: str) -> None:
         """Request the last DG645 error code, log if non-zero."""
