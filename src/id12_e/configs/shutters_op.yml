@@ -1,3 +1,9 @@
+id12_common.devices.shutters.My12IdPssShutter:
+- name: FE_shutter
+  state_pv: "PA:12ID:STA_A_FES_OPEN_PL"
+  prefix: "12ida2:rShtrA:"
+  labels: [ "shutters" ]
+
 apstools.devices.ApsPssShutterWithStatus:
 - name: mono_shutter
   state_pv: "PA:12ID:STA_C_SCS_OPEN_PL"
@@ -13,13 +19,6 @@ id12_common.devices.shutters.ID12_ApsPssShutter:
   open_pv: 12idc:uniblitz:shutter:open
   close_pv: 12idc:uniblitz:shutter:close
   delay_s: 0.01
-
-# id12_common.devices.shutters.My12IdPssShutter:
-# - name: FE_shutter
-#   state_pv: "PA:12ID:STA_A_FES_OPEN_PL"
-#   prefix: "PA:12ID:"
-#   labels: [ "shutters" ]
-#   # FIXME: open_signal & close_signal do not connect
 
 ophyd.signal.EpicsSignal:
 - name: a_shutter_autoopen
