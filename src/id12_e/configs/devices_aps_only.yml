@@ -16,7 +16,7 @@ apstools.devices.ApsMachineParametersDevice:
 #   labels: [ "delaygen" ]
 #   trigger_source: "Single shot external rising edges"  # 3
 
-# apstools.devices.delay.DG645Delay:
+# apstools.devices.delay.DG645Delay:  # TODO needs upstream fix
 id12_common.devices.delay.DG645Delay:
 - name: dg645_idb
   prefix: "12idb:DG1:"
