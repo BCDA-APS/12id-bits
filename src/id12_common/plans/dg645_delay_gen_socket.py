@@ -8,7 +8,7 @@ from bluesky import plan_stubs as bps
 from bluesky.utils import MsgGenerator
 from bluesky.utils import plan
 
-from ..devices.dg645_delay_gen import SocketDG645DelayGen
+from ..devices import SocketDG645DelayGen
 
 
 @plan
