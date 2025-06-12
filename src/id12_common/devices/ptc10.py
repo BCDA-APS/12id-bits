@@ -8,16 +8,17 @@ Local support is always needed.
 
 import logging
 
-logger = logging.getLogger(__name__)
-logger.info(__file__)
-
 from apstools.devices import PTC10AioChannel
 from apstools.devices import PTC10PositionerMixin
-from apstools.devices import PTC10RtdChannel
 from ophyd import Component
 from ophyd import EpicsSignalRO
 from ophyd import EpicsSignalWithRBV
 from ophyd import PVPositioner
+
+# from apstools.devices import PTC10RtdChannel
+
+logger = logging.getLogger(__name__)
+logger.info(__file__)
 
 
 class PTC10_12ID(PTC10PositionerMixin, PVPositioner):
@@ -63,15 +64,28 @@ class PTC10_12ID(PTC10PositionerMixin, PVPositioner):
     p "PID values are set for the Rheo heater!"
     }'
     PTC10 NMR tube heater offsets:
-    The NMR tube heater was insulated with ceramic pieces; the custom-made DC cartridge from Maxiwatt company replaced the previous low power heating element. The tests showed a significant temperature gradient across the holder (20 deg difference @300 deg C).
-    Holder temp. (C)	Right end temp. (C)	Middle temp. (C)	Left end temp. (C)
-    100	89	86	83
-    150	130	126	120
-    200	173	168	160
-    250	215	210	198
-    300	259	252	239
-    Note: at 70C the offset is under 7 degrees for right end NMR tube, heater set to 77 degrees, NMR tube is 70.4C.
-    For 5th NMR tube from right, the offset is pretty much 0 - 70C and sample temperature is 71. So we need to verify offset every time, it clearly varies at different positions a  lot.
+
+    The NMR tube heater was insulated with ceramic pieces; the custom-made
+    DC cartridge from Maxiwatt company replaced the previous low power
+    heating element. The tests showed a significant temperature gradient
+    across the holder (20 deg difference @300 deg C).
+
+    temperatures (C)
+    ======  =========   ======  ========
+    Holder  Right end   Middle  Left end
+    ======  =========   ======  ========
+    100	    89	        86      83
+    150     130         126     120
+    200     173         168     160
+    250     215         210     198
+    300     259         252     239
+    ======  =========  ====== ========
+
+    Note: at 70C the offset is under 7 degrees for right end NMR tube,
+    heater set to 77 degrees, NMR tube is 70.4C.
+    For 5th NMR tube from right, the offset is pretty much 0 - 70C and sample
+    temperature is 71. So we need to verify offset every time, it clearly
+    varies at different positions a  lot.
     """
 
     # PVPositioner interface
@@ -86,7 +100,8 @@ class PTC10_12ID(PTC10PositionerMixin, PVPositioner):
     #     EpicsSignalRO, "2B:temperature", kind="config"
     # )
     # temperatureC = Component(EpicsSignalRO, "2C:temperature", kind="config")
-    # # temperatureD = Component(EpicsSignalRO, "2D:temperature", kind="omitted")  # it's a NaN now
+    # Next line: it's a NaN now
+    # # temperatureD = Component(EpicsSignalRO, "2D:temperature", kind="omitted")
     # coldj2 = Component(
     #     EpicsSignalRO, "ColdJ2:temperature", kind="config"
     # )
