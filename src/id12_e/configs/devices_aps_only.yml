@@ -20,8 +20,13 @@ apstools.devices.ApsMachineParametersDevice:
 id12_common.devices.delay.DG645Delay:
 - name: dg645_idb
   prefix: "12idb:DG1:"
-  labels: [ "delaygen" ]
-# - name: dg645_idc
-#   prefix: "12idc:DG1:"
-#   labels: [ "delaygen" ]
+  labels: [ "delaygen", "baseline" ]
 
+- name: dg645_idc  # 2025-06-11: Should be available after IOC is restarted.
+  prefix: "12idc:DG1:"
+  labels: [ "delaygen" ]
+
+id12_common.devices.ptc10.PTC10_12ID:
+- name: ptc10_idc
+  prefix: "12idTEMP2:tc1:"  # PVs not responding
+  labels: [ "temperature_controller", "baseline" ]

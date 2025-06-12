@@ -6,7 +6,8 @@ Changes to apstools DG645 support.
 
 from apstools.devices.delay import DG645Delay as aps_DG645Delay
 from apstools.devices.delay import EpicsSignalWithIO
-from ophyd import Component as Cpt, EpicsSignal
+from ophyd import Component as Cpt
+from ophyd import EpicsSignal
 
 
 class DG645Delay(aps_DG645Delay):
