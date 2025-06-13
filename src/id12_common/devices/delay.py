@@ -16,4 +16,4 @@ class DG645Delay(aps_DG645Delay):
     burst_mode = Cpt(EpicsSignalWithIO, "BurstModeB", kind="config")
     burst_T0 = Cpt(EpicsSignalWithIO, "BurstConfigB", kind="config")
     # Initiate or arm a trigger (write only, like a pushbutton)
-    trigger_delay = Cpt(EpicsSignal, "TriggerDelayBO", kind="omitted")
+    trigger_arm = Cpt(EpicsSignal, "TriggerDelayBO", kind="omitted")
