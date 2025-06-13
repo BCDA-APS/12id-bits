@@ -5,17 +5,6 @@
 apstools.devices.ApsMachineParametersDevice:
   - name: aps
 
-# id12_common.devices.dg645_delay_gen_socket.SocketDG645DelayGen:
-# - name: dg645_idb # delay generator
-#   host: "10.54.122.66"
-#   labels: [ "delaygen" ]
-#   trigger_source: "Single shot"  # 5
-
-# - name: dg645_idc # delay generator
-#   host: "10.54.122.104"
-#   labels: [ "delaygen" ]
-#   trigger_source: "Single shot external rising edges"  # 3
-
 # apstools.devices.delay.DG645Delay:  # TODO needs upstream fix
 id12_common.devices.delay.DG645Delay:
 - name: dg645_idb
