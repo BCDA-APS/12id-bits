@@ -23,11 +23,12 @@ Plan stubs here patterned after 12ID's SPEC macros for DG645.
 
 import logging
 
-from apstools.devices.delay import DG645Channel, DG645Output
+import pyRestTable
+from apstools.devices.delay import DG645Channel
+from apstools.devices.delay import DG645Output
 from bluesky import plan_stubs as bps
 from bluesky.utils import MsgGenerator
 from bluesky.utils import plan
-import pyRestTable
 
 # from apstools.devices.delay import DG645Delay
 from ..devices import DG645Delay
