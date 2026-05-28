@@ -2,11 +2,11 @@
 
 from apstools.devices.struck3820 import Struck3820
 from ophyd import Component
-from ophyd import EpicsSignal
+from ophyd.scaler import ScalerCH
 
 
 class Struck(Struck3820):
     """Override for Struck3820 at 12ID."""
 
     clock_frequency = None
-    scaler = Component(EpicsSignal, "scaler1")
+    scaler = Component(ScalerCH, "scaler1")
