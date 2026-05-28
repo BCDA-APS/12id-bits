@@ -1,0 +1,37 @@
+apstools.devices.area_detector_factory.ad_creator:
+
+- name: pilatus2m
+  prefix: "S12-PILATUS1:"
+  # IOC host: green
+  labels: [ "area_detector", "detectors", "SAXS" ]
+  plugins:
+  - cam:
+      class: id12_common.devices.area_detector.ID12_PilatusCam_V34
+  - image
+  - pva
+
+- name: pilatus900k
+  prefix: "12idcPIL:"
+  # IOC host:
+  labels: [ "area_detector", "detectors", "WAXS" ]
+  plugins:
+  - cam:
+      class: id12_common.devices.area_detector.ID12_PilatusCam_V34
+  - image
+  - pva
+- name: xsp3
+
+# Other plugin sugegstions from 8-ID:
+#   - codec1:
+#       # needed by PVA and HDF
+#       class: id8_common.devices.area_detector.ID8_CodecPlugin
+#   - hdf1:
+#       class: id8_common.devices.area_detector.ID8_EpicsFileNameHDF5Plugin
+#       read_path_template: /gdata/dm/8IDI/2025-2/
+#       write_path_template: /gdata/dm/8IDI/2025-2/
+#       kind: normal
+#   - overlay1: { class: id8_common.devices.area_detector.ID8_OverlayPlugin }
+#   - process1: { class: id8_common.devices.area_detector.ID8_ProcessPlugin }
+#   - roi1: { class: id8_common.devices.area_detector.ID8_ROIPlugin }
+#   - stats1: { class: id8_common.devices.area_detector.ID8_StatsPlugin }
+#   - transform1: { class: id8_common.devices.area_detector.ID8_TransformPlugin }

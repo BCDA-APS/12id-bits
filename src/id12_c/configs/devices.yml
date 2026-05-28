@@ -4,6 +4,33 @@ apsbits.utils.sim_creator.predefined_device:
 - { creator: ophyd.sim.motor, name: sim_motor }
 - { creator: ophyd.sim.noisy_det, name: sim_det }
 
+apstools.devices.motor_factory.mb_creator:
+- name: sample_stage
+  labels: [ "sample"]
+  prefix: "12idc:"
+  class_name: SampleStage
+  motors:
+    hor: m8
+    ver: m7
+
+- name: beamstop
+  labels: [ "beamstop"]
+  prefix: "12ideSFT:"
+  class_name: BeamstopStage
+  motors:
+    hor: m4
+    ver: m5
+
+- name: saxs_det_stage
+  labels: [ "detector_stage", "baseline", "SAXS" ]
+  prefix: "12idcACS1:"
+  class_name: SaxsDetectorStage
+  motors:
+    x: m5
+    y: m3
+    z: m1
+    bb: m7 # beam block
+
 ## THIS ARE EXAMPLES OF OTHER DEVICES THAT YOU CAN USE
 # ophyd.Signal:
 # - name: test

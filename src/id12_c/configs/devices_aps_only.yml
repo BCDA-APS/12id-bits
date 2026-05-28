@@ -6,3 +6,7 @@ apstools.devices.ApsMachineParametersDevice:
 - name: aps
   labels:
   - baseline
+
+- name: dg645  # 2025-06-11: Should be available after IOC is restarted.
+  prefix: "12idc:DG1:"
+  labels: [ "delaygen" ]

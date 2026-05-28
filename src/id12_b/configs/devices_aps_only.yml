@@ -6,3 +6,8 @@ apstools.devices.ApsMachineParametersDevice:
 - name: aps
   labels:
   - baseline
+
+id12_common.devices.delay.DG645Delay:
+- name: dg645
+  prefix: "12idb:DG1:"
+  labels: [ "delaygen"]
