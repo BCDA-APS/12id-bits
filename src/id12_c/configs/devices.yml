@@ -31,6 +31,11 @@ apstools.devices.motor_factory.mb_creator:
     z: m1
     bb: m7 # beam block
 
+id12_common.devices.filters.PyFilter:
+- name: filters
+  prefix: "12idPyFilter:FL1:"
+  labels: [ "filters" ]
+
 ## THIS ARE EXAMPLES OF OTHER DEVICES THAT YOU CAN USE
 # ophyd.Signal:
 # - name: test
