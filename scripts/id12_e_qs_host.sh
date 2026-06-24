@@ -5,8 +5,8 @@
 
 SHELL_SCRIPT_NAME=${BASH_SOURCE:-${0}}
 SCRIPT_DIR="$(dirname $(readlink -f  "${SHELL_SCRIPT_NAME}"))"
-CONFIGS_DIR=$(readlink -f "${SCRIPT_DIR}/../src/id12_c/configs")
-QSERVER_DIR=$(readlink -f "${SCRIPT_DIR}/../src/id12_c/qserver")
+CONFIGS_DIR=$(readlink -f "${SCRIPT_DIR}/../src/id12_e/configs")
+QSERVER_DIR=$(readlink -f "${SCRIPT_DIR}/../src/id12_e/qserver")
 ###-----------------------------
 ### Change program defaults here
 

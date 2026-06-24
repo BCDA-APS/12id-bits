@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repo was scaffolded from the BITS starter template (via `create-bits`, provided by `apsbits`) and has since been built out into a **multi-station** package. `src/` contains three packages:
 
-- `id12_b`, `id12_c` — one self-contained instrument package per 12-ID experimental hutch (B/C). Each has its own `startup.py`, `configs/` (`iconfig.yml`, `devices.yml`, `devices_aps_only.yml`), `plans/`, `callbacks/`, and `qserver/`.
+- `id12_b`, `id12_e` — one self-contained instrument package per 12-ID experimental hutch (B/E). Each has its own `startup.py`, `configs/` (`iconfig.yml`, `devices.yml`, `devices_aps_only.yml`), `plans/`, `callbacks/`, and `qserver/`.
 - `id12_common` — device and plan code shared across the stations: custom ophyd subclasses for 12-ID hardware (`devices/struck.py` Struck3820 scaler, `devices/delays.py` DG645 delay generator, `devices/ptc10.py` temperature controller, `devices/shutters.py` PSS shutters). Station configs reference these by import path, e.g. `id12_common.devices.struck.Struck`.
 
 The two stations are near-identical in structure; they differ mainly in their `configs/*.yml` (which real devices each hutch has). When changing shared behavior, edit `id12_common` rather than copy-pasting across stations. This package's parent workspace also has a root `../CLAUDE.md` and an `../epics/` tree of the IOCs whose PVs these devices connect to.
@@ -39,7 +39,7 @@ There is no separate build/lint script — CI runs `pre-commit run --all-files` 
 Each station package exposes a `startup` module — pick the hutch you want:
 
 ```python
-from id12_b.startup import *   # or id12_c — creates RE, loads devices, registers plans
+from id12_b.startup import *   # or id12_e — creates RE, loads devices, registers plans
 RE(sim_count_plan())          # smoke test (simulated detector)
 ```
 

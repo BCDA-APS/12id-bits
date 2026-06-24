@@ -1,0 +1,239 @@
+# Guarneri-style device YAML configuration
+
+apsbits.utils.sim_creator.predefined_device:
+- { creator: ophyd.sim.motor, name: sim_motor }
+- { creator: ophyd.sim.noisy_det, name: sim_det }
+
+apstools.devices.motor_factory.mb_creator:
+- name: sample_stage
+  labels: [ "sample"]
+  prefix: "12idc:"
+  class_name: SampleStage
+  motors:
+    hor: m8
+    ver: m7
+
+- name: beamstop
+  labels: [ "beamstop"]
+  prefix: "12ideSFT:"
+  class_name: BeamstopStage
+  motors:
+    hor: m4
+    ver: m5
+
+- name: saxs_det_stage
+  labels: [ "detector_stage", "baseline", "SAXS" ]
+  prefix: "12idcACS1:"
+  class_name: SaxsDetectorStage
+  motors:
+    x: m5
+    y: m3
+    z: m1
+    bb: m7 # beam block
+
+# --- generated from ../../../../epics IOC sources (motor controllers) ---
+- name: acs1                       # 12idcACS1 — ACS SPiiPlus, 8 axes
+  labels: [ "motors" ]
+  prefix: "12idcACS1:"
+  class_name: Acs1Stages
+  # NOTE: saxs_det_stage above already wraps m1/m3/m5/m7 of this controller.
+  motors: { m1: m1, m2: m2, m3: m3, m4: m4, m5: m5, m6: m6, m7: m7, m8: m8 }
+
+# - name: crl                       # 12idcCRL — SmarAct MCS2 piezo (CRL optics) Get from vme 
+#   labels: [ "optics" ]
+#   prefix: "12idcCRL:"
+#   class_name: CrlStages
+#   motors: { cond_pitch: m1, cond_y: m2, beamstop_y: m3, cond_x: m4 }
+
+- name: jj_crl                    # 12idcJJcrl — ACS SPiiPlus, 18 axes (JJ CRL)
+  labels: [ "optics" ]
+  prefix: "12idcJJcrl:"
+  class_name: JjCrlStages
+  motors: { m1: m1, m2: m2, m3: m3, m4: m4, m5: m5, m6: m6, m7: m7, m8: m8, m9: m9, m10: m10, m11: m11, m12: m12, m13: m13, m14: m14, m15: m15, m16: m16, m17: m17, m18: m18 }
+
+- name: sft_stage                 # 12ideSFT — SmarAct MCS2, 8 active axes
+  labels: [ "motors" ]
+  prefix: "12ideSFT:"
+  class_name: SftStages
+  # NOTE: beamstop above already wraps m4 (bsth) / m5 (bstv) of this controller.
+  motors: { gbtph: m1, gstpv: m2, bsth: m4, bstv: m5, m7: m7, m8: m8, m10: m10, m11: m11 }
+
+- name: pi1                       # 12idPI (ioc12idPI1) — PI E-873 piezo, 3 axes
+  labels: [ "motors" ]
+  prefix: "12idPI1:"
+  class_name: Pi1Stages
+  motors: { m1: m1, m2: m2, m3: m3 }
+
+- name: pi2                       # 12idPI (ioc12idPI2) — PI E-873 piezo, 1 axis
+  labels: [ "motors" ]
+  prefix: "12idPI2:"
+  class_name: Pi2Stage
+  motors: { m1: m1 }
+
+- name: hxp                       # 12idHXP — PI H811 hexapod (shared → E)
+  labels: [ "hexapod" ]
+  prefix: "12idHXP:"
+  class_name: HexapodPiH811
+  motors: { hxp_x: m1, hxp_y: m2, hxp_z: m3, hxp_u: m4, hxp_v: m5, hxp_w: m6 }
+
+- name: hxp_at                    # 12idhxpAT — Aerotech Automation1 HEX300 (shared → E)
+  labels: [ "hexapod" ]
+  prefix: "12idhxpAT:"
+  class_name: HexapodAerotechHex300
+  motors: { hxp_z: m1, hxp_x: m2, hxp_y: m3, hxp_a: m4, hxp_b: m5, hxp_c: m6 }
+
+- name: c_motors                  # 12idc — OMS MAXv, 32 axes (DESCs mostly generic "motor N")
+  labels: [ "motors" ]
+  prefix: "12idc:"
+  class_name: C12idcStages
+  # sample_stage uses m7/m8; slit1 uses m3-m6; cl_slit uses m17-m20 (also exposed here).
+  motors: { m1: m1, m2: m2, m3: m3, m4: m4, m5: m5, m6: m6, m7: m7, m8: m8, m9: m9, m10: m10, m11: m11, m12: m12, m13: m13, m14: m14, m15: m15, m16: m16, m17: m17, m18: m18, m19: m19, m20: m20, m21: m21, m22: m22, m23: m23, m24: m24, m25: m25, m26: m26, m27: m27, m28: m28, m29: m29, m30: m30, m31: m31, m32: m32 }
+
+id12_common.devices.filters.PyFilter:
+- name: filters
+  prefix: "12idPyFilter:FL1:"
+  labels: [ "filters" ]
+
+apstools.devices.labjack.LabJackT7:
+- name: lj3                        # 12ideLJ3 — LabJack T7 DAQ (loaded via LabJack_T7.iocsh)
+  prefix: "12ideLJ3:"
+  labels: [ "labjack" ]
+
+apstools.devices.srs570_preamplifier.SRS570_PreAmplifier:
+- { name: preamp_a1, prefix: "12idc:A1", labels: [ "preamp" ] }   # 12idc SR570 (serial1)
+- { name: preamp_a2, prefix: "12idc:A2", labels: [ "preamp" ] }   # serial2
+- { name: preamp_a3, prefix: "12idc:A3", labels: [ "preamp" ] }   # serial3
+- { name: preamp_a4, prefix: "12idc:A4", labels: [ "preamp" ] }   # serial4
+- { name: preamp_ida2_a1, prefix: "12ida2:A1", labels: [ "preamp" ] }  # 12ida2 SR570 (serial1)
+
+ophyd.quadem.QuadEM:
+- name: c_quadem                 # 12idc — quadEM electrometer
+  prefix: "12idc:quadEM:"
+  labels: [ "electrometer", "detectors" ]
+
+ophyd.scaler.ScalerCH:
+- name: c_scaler                 # 12idc — counting scaler
+  prefix: "12idc:scaler1"
+  labels: [ "scalers", "detectors" ]
+
+apstools.synApps.Optics2Slit2D_HV:
+- name: slit1                    # 12idc — 2-slit (V on m3/m4, H on m5/m6)
+  prefix: "12idc:Slit1"
+  labels: [ "slits" ]
+- name: cl_slit                  # 12idc — CL 2-slit (V on m19/m20, H on m17/m18)
+  prefix: "12idc:CL_Slit"
+  labels: [ "slits" ]
+- name: mh2_slits                # 12ida2 — mini-hutch 2-slit (V m37/m38, H m39/m40)
+  prefix: "12ida2:MH2_Slit_"
+  labels: [ "slits" ]
+
+id12_common.devices.shutters.UniblitzShutter:
+- name: uniblitz                 # 12idc — Uniblitz VCMD-D1 fast shutter
+  prefix: "12idc:uniblitz:"
+  labels: [ "shutters" ]
+
+# ============================================================================
+# 12ida2 (12-ID-A general support, vxWorks VME): 40 OMS MAXv motors, BESSRC
+# mono, four optical tables, VMAS + mini-hutch slits, PSS shutters A/B/C,
+# Heidenhain encoder, GP307 gauge, BK9205B PSU, BLEPS PLC status.
+# (Mini-hutch slits + the SR570 preamp are registered under the shared
+# Optics2Slit2D_HV / SRS570_PreAmplifier keys above.)
+# ============================================================================
+
+id12_e.devices.motors.Ida2Stages:
+- name: ida2_stages              # 12ida2 — 40 OMS MAXv axes (m1-m40)
+  prefix: "12ida2:"
+  labels: [ "motors" ]
+
+id12_e.devices.motors.Ida2SoftMotors:
+- name: ida2_soft_motors         # 12ida2 — 10 soft motors (SM1-SM10)
+  prefix: "12ida2:"
+  labels: [ "motors" ]
+
+id12_e.devices.motors.VmasAperture:
+- name: vmas_sl2                 # 12ida2 — VMAS aperture SL2 (4 pseudo-motors)
+  prefix: "12ida2:SL2:"
+  labels: [ "slits" ]
+
+id12_e.devices.mono.BessrcMono:
+- name: bessrc_mono              # 12ida2 — BESSRC mono (theta m19, slide m22)
+  prefix: "12ida2:"
+  labels: [ "monochromator", "baseline" ]
+
+id12_e.devices.tables.OpticalTable:
+- name: table1                   # 12ida2 — WB mirror table (m9-m13, SRI)
+  prefix: "12ida2:table1"
+  labels: [ "tables" ]
+- name: table2                   # 12ida2 — Mono table (m14-m18, SRI)
+  prefix: "12ida2:table2"
+  labels: [ "tables" ]
+- name: table3                   # 12ida2 — Vmirror table (m25-m27, NEWPORT)
+  prefix: "12ida2:table3"
+  labels: [ "tables" ]
+- name: table4                   # 12ida2 — Table 4 (m33-m35, SRI)
+  prefix: "12ida2:table4"
+  labels: [ "tables" ]
+
+id12_e.devices.heidenhain.Heidenhain:
+- name: heid1                    # 12ida2 — Heidenhain ND280 encoder (serial1)
+  prefix: "12ida2:heid1"
+  labels: [ "encoder" ]
+
+id12_e.devices.vacuum.GP307Gauge:
+- name: vac_ig5                  # 12ida2 — GP307 ion gauge (serial5)
+  prefix: "12ida2:IG5"
+  labels: [ "vacuum" ]
+
+id12_e.devices.power_supply.BK9205B:
+- name: bk9205b                  # 12ida2 — BK Precision 9205B PSU (serial2)
+  prefix: "12ida2:BK9205B:1:"
+  labels: [ "power_supply" ]
+
+id12_e.devices.bleps.Bleps:
+- name: bleps                    # 12ida2 — BLEPS PLC status (NOTE: 12id: prefix)
+  prefix: "12id:BLEPS:"
+  labels: [ "bleps", "baseline" ]
+
+id12_common.devices.shutters.My12IdPssShutter:
+- name: shutter_a                # 12ida2 — FOE/A PSS shutter
+  prefix: "12ida2:rShtrA:"
+  state_pv: "PB:12ID:STA_A_FES_CLSD_PL"
+  labels: [ "shutters" ]
+- name: shutter_b                # 12ida2 — B PSS shutter
+  prefix: "12ida2:rShtrB:"
+  state_pv: "PB:12ID:STA_B_SBS_CLSD_PL"
+  labels: [ "shutters" ]
+- name: shutter_c                # 12ida2 — C PSS shutter
+  prefix: "12ida2:rShtrC:"
+  state_pv: "PB:12ID:STA_C_SCS_CLSD_PL"
+  labels: [ "shutters" ]
+
+## ---- PROVISIONAL: these IOCs' motor/device loading is commented-out or not yet
+## wired in their st.cmd, so the PVs do not exist even when the IOC runs. Uncomment
+## an entry once its IOC actually loads the hardware. ----
+#
+# apstools.devices.motor_factory.mb_creator:
+# - name: sydor_stage           # 12ideSydor — OMS MAXv 8 axes (loading commented in motors.iocsh) # Sydor we need sum and position pvs, the rest is trash
+#   prefix: "12ideSydor:"
+#   class_name: SydorStages
+#   motors: { m0x: m1, m0y: m2, m1y: m3, m2x: m4, m2y: m5, m2z: m6, m7: m7, m8: m8 }
+# - name: acs2_optics           # 12idcACS2 — ACS/OMS optics (loading commented in motors.iocsh)
+#   prefix: "12idcACS2:"
+#   class_name: Acs2Optics
+#   motors: { m0x: m1, m0y: m2, m1y: m3, m2x: m4, m2y: m5, m2z: m6, m7: m7, m8: m8 }
+# - name: e_acs1                # 12ideACS1 — ACS SPiiPlus (loading commented in motors.iocsh)
+#   prefix: "12ideACS1:"
+#   class_name: EAcs1Stages
+#   motors: { m0_x: m1, m0_y: m2, m1_y: m3, m2_x: m4, m2_y: m5, m2_z: m6, m7: m7, m8: m8 }
+# - name: galil                # 12ideGALIL — Galil controller (scaffold IOC, placeholder DTYP)
+#   prefix: "12ideGALIL:"
+#   class_name: GalilStages
+#   motors: { m1: m1, m2: m2, m3: m3, m4: m4, m5: m5, m6: m6, m7: m7, m8: m8 }
+# - name: cc_acs_main          # 12ideCC — ACS SPiiPlus 32 axes (endstation IOC not yet wired in st.cmd)
+#   prefix: "12ideCC:" # Read temperature
+#   class_name: CcAcsStages
+#   motors: { m1: m1, m2: m2, m3: m3, m4: m4, m5: m5, m6: m6, m7: m7, m8: m8, m9: m9, m10: m10, m11: m11, m12: m12, m13: m13, m14: m14, m15: m15, m16: m16, m17: m17, m18: m18, m19: m19, m20: m20, m21: m21, m22: m22, m23: m23, m24: m24, m25: m25, m26: m26, m27: m27, m28: m28, m29: m29, m30: m30, m31: m31, m32: m32 }
+#
+# 12ideCC also exposes (deferred; not wired): two LabJack T7 (12ideCC:LJT701:, 12ideCC:LJT7C2:),
+#   a QuadEM (12ideCC:quadEM:), Canberra MCAs (12ideCC:med:mcaN), plus KB pseudo-motors,
+#   filter blades, and BLEPS EtherIP I/O.

@@ -6,6 +6,7 @@ from typing import Union
 from apstools.devices import ApsPssShutterWithStatus
 from apstools.devices.shutters import ApsPssShutter
 from ophyd import Component
+from ophyd import Device
 from ophyd import EpicsSignal
 from ophyd import EpicsSignalRO
 from ophyd import FormattedComponent
@@ -41,3 +42,23 @@ class My12IdPssShutter(ApsPssShutterWithStatus):
     )
     pss_state_open_values: List[Union[int, str]] = [1, "ON"]
     pss_state_closed_values: List[Union[int, str]] = [0, "OFF"]
+
+
+class UniblitzShutter(Device):
+    """Uniblitz VCMD-D1 fast shutter (command-driven), shared by 12-ID-B/C.
+
+    From the IOC's ``uniblitzVCMD1.db`` (``<prefix>uniblitz:``). Each signal
+    fires a serial command when written: ``open``/``close`` move the blade,
+    ``fire`` pulses (trigger), ``reset`` re-initializes, and ``aux_enable``/
+    ``aux_disable`` and ``gate_on``/``gate_off`` control the auxiliary and gate
+    modes.
+    """
+
+    open = Component(EpicsSignal, "shutter:open", kind="omitted")
+    close = Component(EpicsSignal, "shutter:close", kind="omitted")
+    fire = Component(EpicsSignal, "control:trigger", kind="omitted")
+    reset = Component(EpicsSignal, "control:reset", kind="omitted")
+    aux_enable = Component(EpicsSignal, "aux:enable", kind="omitted")
+    aux_disable = Component(EpicsSignal, "aux:disable", kind="omitted")
+    gate_on = Component(EpicsSignal, "gate:on", kind="omitted")
+    gate_off = Component(EpicsSignal, "gate:off", kind="omitted")

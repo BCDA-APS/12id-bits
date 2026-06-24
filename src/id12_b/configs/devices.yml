@@ -4,6 +4,159 @@ apsbits.utils.sim_creator.predefined_device:
 - { creator: ophyd.sim.motor, name: sim_motor }
 - { creator: ophyd.sim.noisy_det, name: sim_det }
 
+# ============================================================================
+# 12-ID-B hardware (generated from the IOC sources under ../../../../epics).
+# NOTE: this file is loaded on EVERY startup; off the APS subnet these will
+# attempt to connect. Move to devices_aps_only.yml if that becomes a problem.
+# ============================================================================
+
+apstools.devices.motor_factory.mb_creator:
+- name: hxp_b                      # 12idbHXP — PI C-887 hexapod (GCS2)
+  labels: [ "hexapod" ]
+  prefix: "12idbHXP:"
+  class_name: HexapodPiC887
+  motors: { hxp_x: m1, hxp_y: m2, hxp_z: m3, hxp_u: m4, hxp_v: m5, hxp_w: m6 }
+
+- name: lilac_acs                  # 12idbLilac — ACS SPiiPlus, 32 axes
+  labels: [ "motors" ]
+  prefix: "12idbLilac:"
+  class_name: LilacAcsStages
+  # KB pseudo-motors (pm1-pm4 via m17-m20) and filter blades deferred.
+  motors: { m1: m1, m2: m2, m3: m3, m4: m4, m5: m5, m6: m6, m7: m7, m8: m8, m9: m9, m10: m10, m11: m11, m12: m12, m13: m13, m14: m14, m15: m15, m16: m16, m17: m17, m18: m18, m19: m19, m20: m20, m21: m21, m22: m22, m23: m23, m24: m24, m25: m25, m26: m26, m27: m27, m28: m28, m29: m29, m30: m30, m31: m31, m32: m32 }
+
+- name: b_motors                  # 12idb — OMS MAXv, 48 axes (DESCs mostly generic "motor N")
+  labels: [ "motors" ]
+  prefix: "12idb:"
+  class_name: B12idbStages
+  # m17-m20 also drive slit1 (below); m24/m47 also drive the cf1 coarse/fine motor.
+  motors: { m1: m1, m2: m2, m3: m3, m4: m4, m5: m5, m6: m6, m7: m7, m8: m8, m9: m9, m10: m10, m11: m11, m12: m12, m13: m13, m14: m14, m15: m15, m16: m16, m17: m17, m18: m18, m19: m19, m20: m20, m21: m21, m22: m22, m23: m23, m24: m24, m25: m25, m26: m26, m27: m27, m28: m28, m29: m29, m30: m30, m31: m31, m32: m32, m33: m33, m34: m34, m35: m35, m36: m36, m37: m37, m38: m38, m39: m39, m40: m40, m41: m41, m42: m42, m43: m43, m44: m44, m45: m45, m46: m46, m47: m47, m48: m48 }
+
+apstools.devices.labjack.LabJackT7:
+- name: lilac_lj_t701             # 12idbLilac LabJack T7 (primary)
+  prefix: "12idbLilac:LJT701:"
+  labels: [ "labjack" ]
+- name: lilac_lj_t7c2            # 12idbLilac LabJack T7 (relays)
+  prefix: "12idbLilac:LJT7C2:"
+  labels: [ "labjack" ]
+
+ophyd.quadem.QuadEM:
+- name: lilac_quadem             # 12idbLilac 4-channel electrometer
+  prefix: "12idbLilac:quadEM:"
+  labels: [ "electrometer", "detectors" ]
+- name: b_quadem                 # 12idb — quadEM electrometer
+  prefix: "12idb:quadEM:"
+  labels: [ "electrometer", "detectors" ]
+
+apstools.devices.area_detector_factory.ad_creator:
+- name: pe_detector             # 12idbPE — Perkin-Elmer flat-panel areaDetector
+  prefix: "12idbPE:"
+  labels: [ "area_detector", "detectors" ]
+  plugins:
+  - cam:
+      class: ophyd.areadetector.cam.PerkinElmerDetectorCam
+  - image
+  - pva
+
+apstools.devices.srs570_preamplifier.SRS570_PreAmplifier:
+- { name: preamp_a1, prefix: "12idb:A1", labels: [ "preamp" ] }   # 12idb SR570 (serial1)
+- { name: preamp_a2, prefix: "12idb:A2", labels: [ "preamp" ] }   # serial2
+- { name: preamp_a3, prefix: "12idb:A3", labels: [ "preamp" ] }   # serial3
+- { name: preamp_a4, prefix: "12idb:A4", labels: [ "preamp" ] }   # serial4
+- { name: preamp_a5, prefix: "12idb:A5", labels: [ "preamp" ] }   # serial5
+- { name: preamp_a6, prefix: "12idb:A6", labels: [ "preamp" ] }   # serial6
+- { name: preamp_a7, prefix: "12idb:A7", labels: [ "preamp" ] }   # serial11
+- { name: fe_preamp_a1, prefix: "12ida1:A1", labels: [ "preamp" ] }  # 12ida1 front-end SR570 (serial11)
+- { name: fe_preamp_a2, prefix: "12ida1:A2", labels: [ "preamp" ] }  # serial12
+- { name: fe_preamp_a3, prefix: "12ida1:A3", labels: [ "preamp" ] }  # serial13
+- { name: fe_preamp_a4, prefix: "12ida1:A4", labels: [ "preamp" ] }  # serial14
+
+# --- 12idb2 (vxWorks VME crate): 2 OMS MAXv cards + Joerger VSC8/16 scaler ---
+id12_b.devices.motors.Idb2Stages:
+- name: idb2_stages              # 12idb2 — OMS MAXv, 8 active axes (card 0, m1-m8)
+  prefix: "12idb2:"
+  labels: [ "motors" ]
+
+ophyd.scaler.ScalerCH:
+- name: scaler1                  # 12idb — counting scaler
+  prefix: "12idb:scaler1"
+  labels: [ "scalers", "detectors" ]
+- name: idb2_scaler             # 12idb2 — Joerger VSC8/16 16-ch scaler (scaler16m.db)
+  prefix: "12idb2:scaler1"
+  labels: [ "scalers", "detectors" ]
+
+apstools.synApps.Optics2Slit2D_HV:
+- name: slit1                    # 12idb — 2-slit (H on m19/m20, V on m17/m18)
+  prefix: "12idb:Slit1"
+  labels: [ "slits" ]
+- name: mbs                      # 12ida1 — mono-beam slit (H=MBSH m8/m7, V=MBSV m5/m6)
+  prefix: "12ida1:MBS"
+  labels: [ "slits" ]
+- name: bds                      # 12ida1 — beam-defining slit (H=BDSH m32/m31, V=BDSV m29/m30)
+  prefix: "12ida1:BDS"
+  labels: [ "slits" ]
+
+id12_b.devices.vacuum.TPG261:
+- name: vac_g1                   # 12idb — TPG261 vacuum gauge G1
+  prefix: "12idb:G1:"
+  labels: [ "vacuum" ]
+
+id12_common.devices.shutters.UniblitzShutter:
+- name: uniblitz                 # 12idb — Uniblitz VCMD-D1 fast shutter
+  prefix: "12idb:uniblitz:"
+  labels: [ "shutters" ]
+
+# ============================================================================
+# 12-ID-A front end (12ida1 IOC) — optics that define the beam delivered to B.
+# ============================================================================
+
+id12_b.devices.dcm.DoubleCrystalMonochromator:
+- name: dcm                      # 12ida1 — double-crystal mono (energy in keV)
+  prefix: "12ida1:"
+  labels: [ "monochromator", "energy" ]
+
+id12_b.devices.vacuum.IonGauge:
+- { name: ig1, prefix: "12ida1:IG1", labels: [ "vacuum" ] }   # GP307 (serial7)
+- { name: ig2, prefix: "12ida1:IG2", labels: [ "vacuum" ] }   # serial8
+- { name: ig3, prefix: "12ida1:IG3", labels: [ "vacuum" ] }   # serial9
+- { name: ig4, prefix: "12ida1:IG4", labels: [ "vacuum" ] }   # serial10
+
+id12_b.devices.vacuum.IonPump:
+- { name: ip1, prefix: "12ida1:IP1", labels: [ "vacuum" ] }     # PI-MPC (serial1)
+- { name: ip2, prefix: "12ida1:IP2", labels: [ "vacuum" ] }
+- { name: ip3, prefix: "12ida1:IP3", labels: [ "vacuum" ] }
+- { name: ip4, prefix: "12ida1:IP4", labels: [ "vacuum" ] }
+- { name: ip5, prefix: "12ida1:IP5", labels: [ "vacuum" ] }
+- { name: ip6, prefix: "12ida1:IP6", labels: [ "vacuum" ] }
+- { name: ip7, prefix: "12ida1:IP7", labels: [ "vacuum" ] }
+- { name: ip8, prefix: "12ida1:IP8", labels: [ "vacuum" ] }
+- { name: ip9, prefix: "12ida1:IP9", labels: [ "vacuum" ] }
+- { name: ip10, prefix: "12ida1:IP10", labels: [ "vacuum" ] }
+- { name: ip11, prefix: "12ida1:IP11", labels: [ "vacuum" ] }
+- { name: ip12, prefix: "12ida1:IP12", labels: [ "vacuum" ] }
+
+id12_b.devices.vacuum.CryoLevelMeter:
+- { name: cryo1, prefix: "12ida1:s1", labels: [ "cryo" ] }    # Oxford ILM202 (serial15)
+- { name: cryo2, prefix: "12ida1:s2", labels: [ "cryo" ] }    # serial16
+
+## ---- PROVISIONAL / verify-before-enabling ----
+## 12idbLilac Canberra MED MCA: EpicsMCA's prefix must be the full mca RECORD name
+## (components are .VAL/.MODE fields), so confirm the record (likely 12idbLilac:med:mca1)
+## then uncomment:
+# ophyd.mca.EpicsMCA:
+# - name: lilac_mca1
+#   prefix: "12idbLilac:med:mca1"
+#   labels: [ "mca", "detectors" ]
+##
+## 12idbLJ1 (2x LabJack T7): loaded via examples/ iocsh, not the active st.cmd.
+## BLEPS EtherIP PLC tags are not committed. Uncomment when the IOC loads them:
+# apstools.devices.labjack.LabJackT7:
+# - name: lj1_t701
+#   prefix: "12idbLJ1:LJT701:"
+#   labels: [ "labjack" ]
+# - name: lj1_t7c2
+#   prefix: "12idbLJ1:LJT7C2:"
+#   labels: [ "labjack" ]
+
 ## THIS ARE EXAMPLES OF OTHER DEVICES THAT YOU CAN USE
 # ophyd.Signal:
 # - name: test
