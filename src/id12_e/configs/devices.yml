@@ -4,8 +4,23 @@ apsbits.utils.sim_creator.predefined_device:
 - { creator: ophyd.sim.motor, name: sim_motor }
 - { creator: ophyd.sim.noisy_det, name: sim_det }
 
+apstools.devices.ApsMachineParametersDevice:
+- name: aps
+  labels:
+  - baseline
+
+id12_common.devices.delays.DG645Delay:
+- name: dg645  # 2025-06-11: Should be available after IOC is restarted.
+  prefix: "12idc:DG1:"
+  labels: [ "delaygen" ]
+
+id12_common.devices.struck.Struck:
+- name: struck
+  prefix: "12idc:3820:"
+  labels: [ "scalers", "detectors" ]
+
 apstools.devices.motor_factory.mb_creator:
-- name: sample_stage
+- name: saxs_sample_stage
   labels: [ "sample"]
   prefix: "12idc:"
   class_name: SampleStage
@@ -13,7 +28,7 @@ apstools.devices.motor_factory.mb_creator:
     hor: m8
     ver: m7
 
-- name: beamstop
+- name: saxs_beamstop
   labels: [ "beamstop"]
   prefix: "12ideSFT:"
   class_name: BeamstopStage
@@ -31,13 +46,15 @@ apstools.devices.motor_factory.mb_creator:
     z: m1
     bb: m7 # beam block
 
-# --- generated from ../../../../epics IOC sources (motor controllers) ---
-- name: acs1                       # 12idcACS1 — ACS SPiiPlus, 8 axes
-  labels: [ "motors" ]
+- name: waxs_det_stage
+  labels: [ "detector_stage", "baseline", "WAXS" ]
   prefix: "12idcACS1:"
-  class_name: Acs1Stages
-  # NOTE: saxs_det_stage above already wraps m1/m3/m5/m7 of this controller.
-  motors: { m1: m1, m2: m2, m3: m3, m4: m4, m5: m5, m6: m6, m7: m7, m8: m8 }
+  class_name: WaxsDetectorStage
+  motors:
+    x: m6
+    y: m4
+    z: m2
+    bb: m8 # beam block
 
 # - name: crl                       # 12idcCRL — SmarAct MCS2 piezo (CRL optics) Get from vme 
 #   labels: [ "optics" ]
@@ -51,14 +68,13 @@ apstools.devices.motor_factory.mb_creator:
   class_name: JjCrlStages
   motors: { m1: m1, m2: m2, m3: m3, m4: m4, m5: m5, m6: m6, m7: m7, m8: m8, m9: m9, m10: m10, m11: m11, m12: m12, m13: m13, m14: m14, m15: m15, m16: m16, m17: m17, m18: m18 }
 
-- name: sft_stage                 # 12ideSFT — SmarAct MCS2, 8 active axes
+- name: gisaxs_beamstop                 # 12ideSFT — SmarAct MCS2, 8 active axes
   labels: [ "motors" ]
   prefix: "12ideSFT:"
   class_name: SftStages
-  # NOTE: beamstop above already wraps m4 (bsth) / m5 (bstv) of this controller.
-  motors: { gbtph: m1, gstpv: m2, bsth: m4, bstv: m5, m7: m7, m8: m8, m10: m10, m11: m11 }
+  motors: { gbtph: m1, gbtpv: m2}
 
-- name: pi1                       # 12idPI (ioc12idPI1) — PI E-873 piezo, 3 axes
+- name: pi1                       # 12idPI (ioc12idPI1) — PI E-873 piezo, 3 axes ##Jordan will look into it
   labels: [ "motors" ]
   prefix: "12idPI1:"
   class_name: Pi1Stages
@@ -74,20 +90,25 @@ apstools.devices.motor_factory.mb_creator:
   labels: [ "hexapod" ]
   prefix: "12idHXP:"
   class_name: HexapodPiH811
-  motors: { hxp_x: m1, hxp_y: m2, hxp_z: m3, hxp_u: m4, hxp_v: m5, hxp_w: m6 }
+  motors: { x: m1, y: m2, z: m3, u: m4, v: m5, w: m6 }
 
 - name: hxp_at                    # 12idhxpAT — Aerotech Automation1 HEX300 (shared → E)
   labels: [ "hexapod" ]
   prefix: "12idhxpAT:"
   class_name: HexapodAerotechHex300
-  motors: { hxp_z: m1, hxp_x: m2, hxp_y: m3, hxp_a: m4, hxp_b: m5, hxp_c: m6 }
+  motors: { x: m1, y: m2, z: m3, a: m4, b: m5, c: m6 }
 
 - name: c_motors                  # 12idc — OMS MAXv, 32 axes (DESCs mostly generic "motor N")
   labels: [ "motors" ]
   prefix: "12idc:"
   class_name: C12idcStages
-  # sample_stage uses m7/m8; slit1 uses m3-m6; cl_slit uses m17-m20 (also exposed here).
-  motors: { m1: m1, m2: m2, m3: m3, m4: m4, m5: m5, m6: m6, m7: m7, m8: m8, m9: m9, m10: m10, m11: m11, m12: m12, m13: m13, m14: m14, m15: m15, m16: m16, m17: m17, m18: m18, m19: m19, m20: m20, m21: m21, m22: m22, m23: m23, m24: m24, m25: m25, m26: m26, m27: m27, m28: m28, m29: m29, m30: m30, m31: m31, m32: m32 }
+  motors: { m1: m1, theta: m2, ms0_bot: m21, ms0_top: m22, ms0_in: m23, ms0_out: m24, crl_up: m25, crl_dn_in: m26, crl_dn_out: m27, crl_x: m28, crl_gonio: m29, crl_z: m30, m31: m31, m32: m32 }
+
+- name: zp_box
+  labels: [ "motors" ]
+  prefix: "12idc:"
+  class_name: ZpBox
+  motors: { zph: m13, zpv: m12, bsh: m11, bsv: m10, bszp_z: m14, osax: m9, osay: m16, osaz: m15}
 
 id12_common.devices.filters.PyFilter:
 - name: filters
@@ -106,29 +127,29 @@ apstools.devices.srs570_preamplifier.SRS570_PreAmplifier:
 - { name: preamp_a4, prefix: "12idc:A4", labels: [ "preamp" ] }   # serial4
 - { name: preamp_ida2_a1, prefix: "12ida2:A1", labels: [ "preamp" ] }  # 12ida2 SR570 (serial1)
 
-ophyd.quadem.QuadEM:
-- name: c_quadem                 # 12idc — quadEM electrometer
-  prefix: "12idc:quadEM:"
-  labels: [ "electrometer", "detectors" ]
+# ophyd.quadem.QuadEM:
+# - name: c_quadem                 # 12idc — quadEM electrometer
+#   prefix: "12idc:quadEM:"
+#   labels: [ "electrometer", "detectors" ]
 
 ophyd.scaler.ScalerCH:
 - name: c_scaler                 # 12idc — counting scaler
   prefix: "12idc:scaler1"
-  labels: [ "scalers", "detectors" ]
+  labels: [ "scalers"]
 
 apstools.synApps.Optics2Slit2D_HV:
-- name: slit1                    # 12idc — 2-slit (V on m3/m4, H on m5/m6)
+- name: crl_slit                    # 12idc — 2-slit (V on m3/m4, H on m5/m6)
   prefix: "12idc:Slit1"
   labels: [ "slits" ]
 - name: cl_slit                  # 12idc — CL 2-slit (V on m19/m20, H on m17/m18)
   prefix: "12idc:CL_Slit"
   labels: [ "slits" ]
-- name: mh2_slits                # 12ida2 — mini-hutch 2-slit (V m37/m38, H m39/m40)
+- name: mh2_slit                # 12ida2 — mini-hutch 2-slit (V m37/m38, H m39/m40)
   prefix: "12ida2:MH2_Slit_"
   labels: [ "slits" ]
 
 id12_common.devices.shutters.UniblitzShutter:
-- name: uniblitz                 # 12idc — Uniblitz VCMD-D1 fast shutter
+- name: fshutter                 # 12idc — Uniblitz VCMD-D1 fast shutter
   prefix: "12idc:uniblitz:"
   labels: [ "shutters" ]
 
@@ -209,7 +230,7 @@ id12_common.devices.shutters.My12IdPssShutter:
   labels: [ "shutters" ]
 
 id12_e.devices.crl.CrlTransfocator:
-- name: crl_transfocator          # 12idmsCRL — 2-element Be CRL transfocator (PyDevice)
+- name: jj_crl_transfocator          # 12idmsCRL — 2-element Be CRL transfocator (PyDevice)
   prefix: "12idmsCRL:MS:"
   labels: [ "optics" ]
 

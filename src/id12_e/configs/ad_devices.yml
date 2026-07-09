@@ -1,5 +1,5 @@
 apstools.devices.area_detector_factory.ad_creator:
-
+  
 - name: pilatus2m
   prefix: "S12-PILATUS1:"
   # IOC host: green
@@ -30,7 +30,12 @@ apstools.devices.area_detector_factory.ad_creator:
   plugins:
   - cam: { class: id12_common.devices.area_detector.ID12_SpinnakerCam_V34 }
   - image: { class: id12_common.devices.area_detector.ID12_ImagePlugin }
-
+  - hdf1:
+      class: id12_common.devices.area_detector.ID12_EpicsFileNameHDF5Plugin
+      # TODO: set to the real 12-ID-B DM directory (as Bluesky sees it / as the IOC sees it)
+      read_path_template: /PLACEHOLDER/bluesky/
+      write_path_template: /PLACEHOLDER/ioc/
+      kind: normal
 - name: bfs2
   prefix: "12idBFS2:"
   # 12-ID-C FLIR Blackfly-S BFS-PGE-16S2C (ADSpinnaker)
@@ -38,6 +43,12 @@ apstools.devices.area_detector_factory.ad_creator:
   plugins:
   - cam: { class: id12_common.devices.area_detector.ID12_SpinnakerCam_V34 }
   - image: { class: id12_common.devices.area_detector.ID12_ImagePlugin }
+  - hdf1:
+      class: id12_common.devices.area_detector.ID12_EpicsFileNameHDF5Plugin
+      # TODO: set to the real 12-ID-B DM directory (as Bluesky sees it / as the IOC sees it)
+      read_path_template: /PLACEHOLDER/bluesky/
+      write_path_template: /PLACEHOLDER/ioc/
+      kind: normal
 
 # TODO (deferred): AVT Mako area-detector cameras — decide package (id12_b vs id12_e), then add.
 #   12idPS1: (Mako G319B), 12idPS2: (Mako G319C), 12idPS3: (Mako G319C).
@@ -47,18 +58,3 @@ apstools.devices.area_detector_factory.ad_creator:
 #       class ID12_MakoCam_V34(CamMixin_V34, CamBase): ...  # + only the vimba.template PVs you verify
 #   then one ad_creator entry per camera with the plugins the IOC actually loads (cam, image [, pva]).
 #   (12idBFS1 / 12idBFS2 Blackfly-S / ADSpinnaker cameras are now added above as bfs1/bfs2.)
-
-# Other plugin sugegstions from 8-ID:
-#   - codec1:
-#       # needed by PVA and HDF
-#       class: id8_common.devices.area_detector.ID8_CodecPlugin
-#   - hdf1:
-#       class: id8_common.devices.area_detector.ID8_EpicsFileNameHDF5Plugin
-#       read_path_template: /gdata/dm/8IDI/2025-2/
-#       write_path_template: /gdata/dm/8IDI/2025-2/
-#       kind: normal
-#   - overlay1: { class: id8_common.devices.area_detector.ID8_OverlayPlugin }
-#   - process1: { class: id8_common.devices.area_detector.ID8_ProcessPlugin }
-#   - roi1: { class: id8_common.devices.area_detector.ID8_ROIPlugin }
-#   - stats1: { class: id8_common.devices.area_detector.ID8_StatsPlugin }
-#   - transform1: { class: id8_common.devices.area_detector.ID8_TransformPlugin }

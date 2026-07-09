@@ -10,6 +10,16 @@ apsbits.utils.sim_creator.predefined_device:
 # attempt to connect. Move to devices_aps_only.yml if that becomes a problem.
 # ============================================================================
 
+apstools.devices.ApsMachineParametersDevice:
+- name: aps
+  labels:
+  - baseline
+
+id12_common.devices.delays.DG645Delay:
+- name: dg645
+  prefix: "12idb:DG1:"
+  labels: [ "delaygen"]
+
 apstools.devices.motor_factory.mb_creator:
 - name: hxp_b                      # 12idbHXP — PI C-887 hexapod (GCS2)
   labels: [ "hexapod" ]
@@ -17,12 +27,14 @@ apstools.devices.motor_factory.mb_creator:
   class_name: HexapodPiC887
   motors: { hxp_x: m1, hxp_y: m2, hxp_z: m3, hxp_u: m4, hxp_v: m5, hxp_w: m6 }
 
-- name: lilac_acs                  # 12idbLilac — ACS SPiiPlus, 32 axes
-  labels: [ "motors" ]
-  prefix: "12idbLilac:"
-  class_name: LilacAcsStages
-  # KB pseudo-motors (pm1-pm4 via m17-m20) and filter blades deferred.
-  motors: { m1: m1, m2: m2, m3: m3, m4: m4, m5: m5, m6: m6, m7: m7, m8: m8, m9: m9, m10: m10, m11: m11, m12: m12, m13: m13, m14: m14, m15: m15, m16: m16, m17: m17, m18: m18, m19: m19, m20: m20, m21: m21, m22: m22, m23: m23, m24: m24, m25: m25, m26: m26, m27: m27, m28: m28, m29: m29, m30: m30, m31: m31, m32: m32 }
+## SoftIOC for encoder.
+## 12idbLilac:e1
+# - name: lilac_acs                  # 12idbLilac — ACS SPiiPlus, 32 axes
+#   labels: [ "motors" ]
+#   prefix: "12idbLilac:"
+#   class_name: LilacAcsStages
+#   # KB pseudo-motors (pm1-pm4 via m17-m20) and filter blades deferred.
+#   motors: { m1: m1, m2: m2, m3: m3, m4: m4, m5: m5, m6: m6, m7: m7, m8: m8, m9: m9, m10: m10, m11: m11, m12: m12, m13: m13, m14: m14, m15: m15, m16: m16, m17: m17, m18: m18, m19: m19, m20: m20, m21: m21, m22: m22, m23: m23, m24: m24, m25: m25, m26: m26, m27: m27, m28: m28, m29: m29, m30: m30, m31: m31, m32: m32 }
 
 - name: b_motors                  # 12idb — OMS MAXv, 48 axes (DESCs mostly generic "motor N")
   labels: [ "motors" ]
@@ -31,11 +43,6 @@ apstools.devices.motor_factory.mb_creator:
   # m17-m20 also drive slit1 (below); m24/m47 also drive the cf1 coarse/fine motor.
   motors: { m1: m1, m2: m2, m3: m3, m4: m4, m5: m5, m6: m6, m7: m7, m8: m8, m9: m9, m10: m10, m11: m11, m12: m12, m13: m13, m14: m14, m15: m15, m16: m16, m17: m17, m18: m18, m19: m19, m20: m20, m21: m21, m22: m22, m23: m23, m24: m24, m25: m25, m26: m26, m27: m27, m28: m28, m29: m29, m30: m30, m31: m31, m32: m32, m33: m33, m34: m34, m35: m35, m36: m36, m37: m37, m38: m38, m39: m39, m40: m40, m41: m41, m42: m42, m43: m43, m44: m44, m45: m45, m46: m46, m47: m47, m48: m48 }
 
-- name: b_acs1                    # 12idbACS1 — ACS SPiiPlus, 4 axes
-  labels: [ "motors" ]
-  prefix: "12idbACS1:"
-  class_name: BAcs1Stages
-  motors: { m1: m1, m2: m2, m3: m3, m4: m4 }
 
 # TODO (deferred): 12idbCC — 12-ID-B C-endstation COMBO IOC (prefix 12idbCC:). Not a single
 #   device: ACS SPiiPlus motors + LabJack T7 + Canberra MCA + quadEM + KB pseudo-motors, plus
@@ -44,31 +51,22 @@ apstools.devices.motor_factory.mb_creator:
 #   ACS motors -> mb_creator (like b_acs1); LabJack -> apstools.devices.labjack.LabJackT7;
 #   MCA -> ophyd.mca.EpicsMCA; quadEM -> ophyd.quadem.QuadEM.
 
-apstools.devices.labjack.LabJackT7:
-- name: lilac_lj_t701             # 12idbLilac LabJack T7 (primary)
-  prefix: "12idbLilac:LJT701:"
-  labels: [ "labjack" ]
-- name: lilac_lj_t7c2            # 12idbLilac LabJack T7 (relays)
-  prefix: "12idbLilac:LJT7C2:"
-  labels: [ "labjack" ]
+# apstools.devices.labjack.LabJackT7:
+# - name: lilac_lj_t701             # 12idbLilac LabJack T7 (primary)
+#   prefix: "12idbLilac:LJT701:"
+#   labels: [ "labjack" ]
+# - name: lilac_lj_t7c2            # 12idbLilac LabJack T7 (relays)
+#   prefix: "12idbLilac:LJT7C2:"
+#   labels: [ "labjack" ]
 
-ophyd.quadem.QuadEM:
-- name: lilac_quadem             # 12idbLilac 4-channel electrometer
-  prefix: "12idbLilac:quadEM:"
-  labels: [ "electrometer", "detectors" ]
-- name: b_quadem                 # 12idb — quadEM electrometer
-  prefix: "12idb:quadEM:"
-  labels: [ "electrometer", "detectors" ]
+# ophyd.quadem.QuadEM:
+# - name: lilac_quadem             # 12idbLilac 4-channel electrometer
+#   prefix: "12idbLilac:quadEM:"
+#   labels: [ "electrometer", "detectors" ]
+# - name: b_quadem                 # 12idb — quadEM electrometer
+#   prefix: "12idb:quadEM:"
+#   labels: [ "electrometer", "detectors" ]
 
-apstools.devices.area_detector_factory.ad_creator:
-- name: pe_detector             # 12idbPE — Perkin-Elmer flat-panel areaDetector
-  prefix: "12idbPE:"
-  labels: [ "area_detector", "detectors" ]
-  plugins:
-  - cam:
-      class: ophyd.areadetector.cam.PerkinElmerDetectorCam
-  - image
-  - pva
 
 apstools.devices.srs570_preamplifier.SRS570_PreAmplifier:
 - { name: preamp_a1, prefix: "12idb:A1", labels: [ "preamp" ] }   # 12idb SR570 (serial1)
@@ -92,19 +90,16 @@ id12_b.devices.motors.Idb2Stages:
 ophyd.scaler.ScalerCH:
 - name: scaler1                  # 12idb — counting scaler
   prefix: "12idb:scaler1"
-  labels: [ "scalers", "detectors" ]
-- name: idb2_scaler             # 12idb2 — Joerger VSC8/16 16-ch scaler (scaler16m.db)
-  prefix: "12idb2:scaler1"
-  labels: [ "scalers", "detectors" ]
+  labels: [ "scalers"]
 
 apstools.synApps.Optics2Slit2D_HV:
-- name: slit1                    # 12idb — 2-slit (H on m19/m20, V on m17/m18)
+- name: slit3                    # 12idb — 2-slit (H on m19/m20, V on m17/m18)
   prefix: "12idb:Slit1"
   labels: [ "slits" ]
-- name: mbs                      # 12ida1 — mono-beam slit (H=MBSH m8/m7, V=MBSV m5/m6)
+- name: slit1                    # 12ida1 — mono-beam slit (H=MBSH m8/m7, V=MBSV m5/m6)
   prefix: "12ida1:MBS"
   labels: [ "slits" ]
-- name: bds                      # 12ida1 — beam-defining slit (H=BDSH m32/m31, V=BDSV m29/m30)
+- name: slit2                    # 12ida1 — beam-defining slit (H=BDSH m32/m31, V=BDSV m29/m30)
   prefix: "12ida1:BDS"
   labels: [ "slits" ]
 
@@ -114,7 +109,7 @@ id12_b.devices.vacuum.TPG261:
   labels: [ "vacuum" ]
 
 id12_common.devices.shutters.UniblitzShutter:
-- name: uniblitz                 # 12idb — Uniblitz VCMD-D1 fast shutter
+- name: fshutter                 # 12idb — Uniblitz VCMD-D1 fast shutter
   prefix: "12idb:uniblitz:"
   labels: [ "shutters" ]
 
@@ -169,47 +164,3 @@ id12_b.devices.vacuum.CryoLevelMeter:
 # - name: lj1_t7c2
 #   prefix: "12idbLJ1:LJT7C2:"
 #   labels: [ "labjack" ]
-
-## THIS ARE EXAMPLES OF OTHER DEVICES THAT YOU CAN USE
-# ophyd.Signal:
-# - name: test
-#   value: 50.7
-# - name: t2
-#   value: 2
-
-# apstools.synApps.Optics2Slit2D_HV:
-# - name: slit1
-#   prefix: ioc:Slit1
-#   labels: ["slits", "baseline"]
-
-# hkl.SimulatedE4CV:
-# - name: sim4c
-#   prefix: ""
-#   labels: ["diffractometer"]
-
-# ophyd.scaler.ScalerCH:
-# - name: scaler1
-#   prefix: vme:scaler1
-#   labels: ["scalers", "detectors"]
-
-# ophyd.EpicsMotor:
-# - {name: m1, prefix: gp:m1, labels: ["motor"]}
-# - {name: m2, prefix: gp:m2, labels: ["motor"]}
-# - {name: m3, prefix: gp:m3, labels: ["motor"]}
-# - {name: m4, prefix: gp:m4, labels: ["motor"]}
-
-# apstools.devices.ad_creator:
-#   - name: adsimdet
-#     prefix: "ad:"
-#     labels: ["area_detector", "detectors"]
-#     plugins:
-#       - cam:
-#           class: apstools.devices.SimDetectorCam_V34
-#       - image
-#       - pva
-#       - hdf1:
-#           class: apstools.devices.AD_EpicsFileNameHDF5Plugin
-#           read_path_template: "/path/to/bluesky/tmp/"
-#           write_path_template: "/path/to/ioc/tmp/"
-#       - roi1
-#       - stats1

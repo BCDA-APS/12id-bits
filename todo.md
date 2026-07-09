@@ -18,7 +18,7 @@ confirm the axis/PV map) once the IOC loads its hardware.
 - [ ] **12idbLJ1** (`id12_b`) — 2× LabJack T7 + BLEPS; loaded via `examples/` iocsh, not the active `st.cmd`.
 - [ ] **12idcACS2** (`id12_e`) — ACS/OMS optics (MLL, Bragg mono, slits); loading commented in `motors.iocsh`.
 - [ ] **12idcCRL** (`id12_e`) — SmarAct MCS2 piezo CRL optics; commented stub in `devices.yml`.
-- [ ] **12ideACS1** (`id12_e`) — ACS SPiiPlus + BLEPS; ACS axes not activated.
+- [ ] **12ideACS1** (`id12_e`) — ACS SPiiPlus + BLEPS; ACS axes not activated. #include BLEPS 
 - [ ] **12ideCC** (`id12_e`) — E-endstation combo (ACS 32-axis, MCA, LabJack, quadEM, KB); not wired in `st.cmd`.
 - [ ] **12ideGALIL** (`id12_e`) — Galil controller; scaffold IOC with placeholder DTYP (no real driver loaded).
 - [ ] **12ideSydor** (`id12_e`) — OMS MAXv Sydor stages; loading commented in `motors.iocsh`.
@@ -33,7 +33,7 @@ Source is ready — these could be built now, but a choice is pending.
 
 ## Reason: combo IOC — not a single device
 
-- [ ] **12idbCC** (`id12_b`) — 12-ID-B C-endstation combo (`12idbCC:`). Multiple subsystems, build each separately: ACS SPiiPlus motors (`mb_creator`), LabJack T7 (`apstools…LabJackT7`), Canberra MCA (`ophyd.mca.EpicsMCA`), quadEM (`ophyd.quadem.QuadEM`), KB pseudo-motors. Its `$(INSTANCE)`-templated camera options (adsc/andor/andor3/eiger) **cannot be pinned** until the concrete camera is known.
+- [ ] **12idbCC** (`id12_b`) — 12-ID-B C-endstation combo (`12idbCC:`). Multiple subsystems, build each separately: ACS SPiiPlus motors (`mb_creator`), LabJack T7 (`apstools…LabJackT7`), Canberra MCA (`ophyd.mca.EpicsMCA`), quadEM (`ophyd.quadem.QuadEM`), KB pseudo-motors. Its `$(INSTANCE)`-templated camera options (adsc/andor/andor3/eiger) **cannot be pinned** until the concrete camera is known. #no canberra, no quadEM, no KB
 
 ---
 
