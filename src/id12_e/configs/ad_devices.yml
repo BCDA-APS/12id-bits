@@ -19,7 +19,34 @@ apstools.devices.area_detector_factory.ad_creator:
       class: id12_common.devices.area_detector.ID12_PilatusCam_V34
   - image
   - pva
-- name: xsp3
+# TODO: incomplete 'xsp3' (Xspress3?) entry — commented out so this ad_creator list loads.
+#       A bare `- name: xsp3` (no prefix/plugins) makes ad_creator raise at startup. Complete or remove.
+# - name: xsp3
+
+- name: bfs1
+  prefix: "12idBFS1:"
+  # 12-ID-C FLIR Blackfly-S BFS-PGE-16S2C (ADSpinnaker)
+  labels: [ "area_detector", "detectors" ]
+  plugins:
+  - cam: { class: id12_common.devices.area_detector.ID12_SpinnakerCam_V34 }
+  - image: { class: id12_common.devices.area_detector.ID12_ImagePlugin }
+
+- name: bfs2
+  prefix: "12idBFS2:"
+  # 12-ID-C FLIR Blackfly-S BFS-PGE-16S2C (ADSpinnaker)
+  labels: [ "area_detector", "detectors" ]
+  plugins:
+  - cam: { class: id12_common.devices.area_detector.ID12_SpinnakerCam_V34 }
+  - image: { class: id12_common.devices.area_detector.ID12_ImagePlugin }
+
+# TODO (deferred): AVT Mako area-detector cameras — decide package (id12_b vs id12_e), then add.
+#   12idPS1: (Mako G319B), 12idPS2: (Mako G319C), 12idPS3: (Mako G319C).
+#   All three are ADVimba (vimba.template) with NO stock ophyd cam class, so first add a site
+#   cam subclass to id12_common/devices/area_detector.py, e.g.:
+#       from ophyd.areadetector import CamBase
+#       class ID12_MakoCam_V34(CamMixin_V34, CamBase): ...  # + only the vimba.template PVs you verify
+#   then one ad_creator entry per camera with the plugins the IOC actually loads (cam, image [, pva]).
+#   (12idBFS1 / 12idBFS2 Blackfly-S / ADSpinnaker cameras are now added above as bfs1/bfs2.)
 
 # Other plugin sugegstions from 8-ID:
 #   - codec1:

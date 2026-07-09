@@ -208,6 +208,11 @@ id12_common.devices.shutters.My12IdPssShutter:
   state_pv: "PB:12ID:STA_C_SCS_CLSD_PL"
   labels: [ "shutters" ]
 
+id12_e.devices.crl.CrlTransfocator:
+- name: crl_transfocator          # 12idmsCRL — 2-element Be CRL transfocator (PyDevice)
+  prefix: "12idmsCRL:MS:"
+  labels: [ "optics" ]
+
 ## ---- PROVISIONAL: these IOCs' motor/device loading is commented-out or not yet
 ## wired in their st.cmd, so the PVs do not exist even when the IOC runs. Uncomment
 ## an entry once its IOC actually loads the hardware. ----
@@ -237,3 +242,29 @@ id12_common.devices.shutters.My12IdPssShutter:
 # 12ideCC also exposes (deferred; not wired): two LabJack T7 (12ideCC:LJT701:, 12ideCC:LJT7C2:),
 #   a QuadEM (12ideCC:quadEM:), Canberra MCAs (12ideCC:med:mcaN), plus KB pseudo-motors,
 #   filter blades, and BLEPS EtherIP I/O.
+
+# ============================================================================
+# 12iddMCS2 (12-ID-D general soft IOC) — deployed prefix "12iddMCS2:".
+#
+# PROVISIONAL / DISABLED: as of this writing the IOC's st.cmd.Linux boots ONLY
+# synApps soft services (autosave, caputRecorder, sscan/saveData, userCalcs,
+# lua, sseq, interp, busy, alive, devIocStats, STD/misc.db) plus motor
+# allstop/alldone logic. ALL hardware motor loading is commented out in
+# iocBoot/ioc12iddMCS2/iocsh/motors.iocsh:
+#   #dbLoadTemplate("substitutions/motor.substitutions", ...)   # OMS MAXv m1-m8
+#   #dbLoadTemplate("substitutions/softMotor.substitutions", ...) # SM1-SM10
+#   #iocshLoad("$(MOTOR)/iocsh/motorSim.iocsh", ...)             # sim m1-m16
+# No scaler and no MCA db are loaded anywhere. So the motor PVs below DO NOT
+# EXIST even when the IOC is running. Uncomment this entry only after the OMS
+# MAXv table is actually loaded in motors.iocsh (and confirm the axis map).
+#
+# Axis names come from the DESC fields in substitutions/motor.substitutions
+# (optical-table stages): m1=M0X, m2=M0Y, m3=M1Y, m4=M2X, m5=M2Y, m6=M2Z;
+# m7/m8 have generic DESC ("motor N").
+# ----------------------------------------------------------------------------
+# apstools.devices.motor_factory.mb_creator:
+# - name: mcs2_table            # 12iddMCS2 — OMS MAXv table stages (loading commented in motors.iocsh)
+#   labels: [ "motors" ]
+#   prefix: "12iddMCS2:"
+#   class_name: Mcs2TableStages
+#   motors: { m0x: m1, m0y: m2, m1y: m3, m2x: m4, m2y: m5, m2z: m6, m7: m7, m8: m8 }

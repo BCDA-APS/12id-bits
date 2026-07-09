@@ -31,6 +31,19 @@ apstools.devices.motor_factory.mb_creator:
   # m17-m20 also drive slit1 (below); m24/m47 also drive the cf1 coarse/fine motor.
   motors: { m1: m1, m2: m2, m3: m3, m4: m4, m5: m5, m6: m6, m7: m7, m8: m8, m9: m9, m10: m10, m11: m11, m12: m12, m13: m13, m14: m14, m15: m15, m16: m16, m17: m17, m18: m18, m19: m19, m20: m20, m21: m21, m22: m22, m23: m23, m24: m24, m25: m25, m26: m26, m27: m27, m28: m28, m29: m29, m30: m30, m31: m31, m32: m32, m33: m33, m34: m34, m35: m35, m36: m36, m37: m37, m38: m38, m39: m39, m40: m40, m41: m41, m42: m42, m43: m43, m44: m44, m45: m45, m46: m46, m47: m47, m48: m48 }
 
+- name: b_acs1                    # 12idbACS1 — ACS SPiiPlus, 4 axes
+  labels: [ "motors" ]
+  prefix: "12idbACS1:"
+  class_name: BAcs1Stages
+  motors: { m1: m1, m2: m2, m3: m3, m4: m4 }
+
+# TODO (deferred): 12idbCC — 12-ID-B C-endstation COMBO IOC (prefix 12idbCC:). Not a single
+#   device: ACS SPiiPlus motors + LabJack T7 + Canberra MCA + quadEM + KB pseudo-motors, plus
+#   $(INSTANCE)-templated camera options (adsc/andor/andor3/eiger) that can't be pinned without
+#   knowing the concrete camera. Add per sub-system once you decide which to expose to Bluesky:
+#   ACS motors -> mb_creator (like b_acs1); LabJack -> apstools.devices.labjack.LabJackT7;
+#   MCA -> ophyd.mca.EpicsMCA; quadEM -> ophyd.quadem.QuadEM.
+
 apstools.devices.labjack.LabJackT7:
 - name: lilac_lj_t701             # 12idbLilac LabJack T7 (primary)
   prefix: "12idbLilac:LJT701:"
