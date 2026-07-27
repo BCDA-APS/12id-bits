@@ -45,7 +45,6 @@ apstools.devices.area_detector_factory.ad_creator:
   - stats5: { class: id12_common.devices.area_detector.ID12_StatsPlugin }
   - transform1: { class: id12_common.devices.area_detector.ID12_TransformPlugin }
 
-apstools.devices.area_detector_factory.ad_creator:
 - name: pe_detector             # 12idbPE — Perkin-Elmer flat-panel areaDetector
   prefix: "12idbPE:"
   labels: [ "area_detector", "detectors" ]
