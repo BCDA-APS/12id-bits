@@ -51,11 +51,11 @@ apstools.devices.area_detector_factory.ad_creator:
       write_path_template: /PLACEHOLDER/ioc/
       kind: normal
 
-TODO (deferred): AVT Mako area-detector cameras — decide package (id12_b vs id12_e), then add.
-  12idPS1: (Mako G319B), 12idPS2: (Mako G319C), 12idPS3: (Mako G319C).
-  All three are ADVimba (vimba.template) with NO stock ophyd cam class, so first add a site
-  cam subclass to id12_common/devices/area_detector.py, e.g.:
-      from ophyd.areadetector import CamBase
-      class ID12_MakoCam_V34(CamMixin_V34, CamBase): ...  # + only the vimba.template PVs you verify
-  then one ad_creator entry per camera with the plugins the IOC actually loads (cam, image [, pva]).
-  (12idBFS1 / 12idBFS2 Blackfly-S / ADSpinnaker cameras are now added above as bfs1/bfs2.)
+# TODO (deferred): AVT Mako area-detector cameras — decide package (id12_b vs id12_e), then add.
+#   12idPS1: (Mako G319B), 12idPS2: (Mako G319C), 12idPS3: (Mako G319C).
+#   All three are ADVimba (vimba.template) with NO stock ophyd cam class, so first add a site
+#   cam subclass to id12_common/devices/area_detector.py, e.g.:
+#       from ophyd.areadetector import CamBase
+#       class ID12_MakoCam_V34(CamMixin_V34, CamBase): ...  # + only the vimba.template PVs you verify
+#   then one ad_creator entry per camera with the plugins the IOC actually loads (cam, image [, pva]).
+#   (12idBFS1 / 12idBFS2 Blackfly-S / ADSpinnaker cameras are now added above as bfs1/bfs2.)
