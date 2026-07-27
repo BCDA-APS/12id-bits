@@ -146,8 +146,8 @@ apstools.synApps.Optics2Slit2D_HV:
   labels: [ "slits" ]
 
 id12_e.devices.crl_slit.Optics2Slit2D_HV:
-- name: usxLAX:m58:c1                    # 12idc — 2-slit (V on m3/m4, H on m5/m6)
-  prefix: "12idc:Slit1"
+- name: crl_slit                    # 12idc — 2-slit (V on m3/m4, H on m5/m6)
+  prefix: "usxLAX:m58:c1"
   labels: [ "slits" ]
 
 id12_common.devices.shutters.UniblitzShutter:
