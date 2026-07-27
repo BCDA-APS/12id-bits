@@ -123,7 +123,9 @@ class CrlTransfocator(Device):
     # --- system type / layout (pyDevCRL_general.db + pyDevCRL_2systems.db)
     sys_type = Component(EpicsSignal, "sysType", string=True)  # mbbo 1x/2x/KB
     sys_type_rbv = Component(EpicsSignalRO, "sysType_RBV", string=True)  # mbbi
-    single_crl = Component(EpicsSignalRO, "singleCRLbo", string=True)  # bo Double/Single
+    single_crl = Component(
+        EpicsSignalRO, "singleCRLbo", string=True
+    )  # bo Double/Single
     system1 = Component(EpicsSignal, "system1", string=True)  # mbbo US/DS
     system1_rbv = Component(EpicsSignalRO, "system1_RBV", string=True)  # mbbi
     system2 = Component(EpicsSignal, "system2", string=True)  # mbbo US/DS
@@ -136,7 +138,9 @@ class CrlTransfocator(Device):
     # --- lookup-table controls (pyDevCRL_general.db) ---------------------
     recalc_enable = Component(EpicsSignal, "recalc_enable", string=True)  # bo
     recalc_table = Component(EpicsSignal, "recalc_table", kind="omitted")  # bo trigger
-    refind_config = Component(EpicsSignal, "refind_config", kind="omitted")  # bo trigger
+    refind_config = Component(
+        EpicsSignal, "refind_config", kind="omitted"
+    )  # bo trigger
     thickerr_flag = Component(EpicsSignal, "thickerr_flag", string=True)  # bo On/Off
     thickerr_flag_rbv = Component(EpicsSignalRO, "thickerr_flag_RBV")  # bi
     verbosity = Component(EpicsSignal, "verbosity", string=True, kind="omitted")  # bo

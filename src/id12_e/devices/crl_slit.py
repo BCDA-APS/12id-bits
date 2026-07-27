@@ -35,8 +35,6 @@ from apstools.devices import PVPositionerSoftDone
 from apstools.utils import SlitGeometry
 from ophyd import Component
 from ophyd import Device
-from ophyd import EpicsSignal
-
 
 
 class Optics2Slit2D_HV(Device):
@@ -44,20 +42,25 @@ class Optics2Slit2D_HV(Device):
     EPICS synApps optics 2slit.db 2D support: h.xn, h.xp, v.xn, v.xp
     """
 
-    h_size = Component(PVPositionerSoftDone, ":m8", setpoint_pv=".VAL", readback_pv=".RBV")
-    v_size = Component(PVPositionerSoftDone, ":m7", setpoint_pv=".VAL", readback_pv=".RBV")
-    h_center = Component(PVPositionerSoftDone, ":m6", setpoint_pv=".VAL", readback_pv=".RBV")
-    v_center = Component(PVPositionerSoftDone, ":m5", setpoint_pv=".VAL", readback_pv=".RBV")
-
+    h_size = Component(
+        PVPositionerSoftDone, ":m8", setpoint_pv=".VAL", readback_pv=".RBV"
+    )
+    v_size = Component(
+        PVPositionerSoftDone, ":m7", setpoint_pv=".VAL", readback_pv=".RBV"
+    )
+    h_center = Component(
+        PVPositionerSoftDone, ":m6", setpoint_pv=".VAL", readback_pv=".RBV"
+    )
+    v_center = Component(
+        PVPositionerSoftDone, ":m5", setpoint_pv=".VAL", readback_pv=".RBV"
+    )
 
     @property
     def geometry(self):
         """Return the slit 2D size and center as a namedtuple."""
         pppp = [
-            round(obj.position, obj.precision) for obj in (self.h_size,
-                                                           self.v_size,
-                                                           self.h_center,
-                                                           self.v_center)
+            round(obj.position, obj.precision)
+            for obj in (self.h_size, self.v_size, self.h_center, self.v_center)
         ]
 
         return SlitGeometry(*pppp)

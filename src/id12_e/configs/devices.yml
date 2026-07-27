@@ -56,7 +56,7 @@ apstools.devices.motor_factory.mb_creator:
     z: m2
     bb: m8 # beam block
 
-# - name: crl                       # 12idcCRL — SmarAct MCS2 piezo (CRL optics) Get from vme 
+# - name: crl                       # 12idcCRL — SmarAct MCS2 piezo (CRL optics) Get from vme
 #   labels: [ "optics" ]
 #   prefix: "12idcCRL:"
 #   class_name: CrlStages

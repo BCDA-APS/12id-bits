@@ -1,5 +1,5 @@
 apstools.devices.area_detector_factory.ad_creator:
-  
+
 - name: pilatus2m
   prefix: "S12-PILATUS1:"
   # IOC host: green
