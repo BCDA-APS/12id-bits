@@ -46,6 +46,8 @@ class Optics2Slit1D(Device):
     virtual slit values with the actual motor positions.
     """
 
+    xn = Component(PVPositionerSoftDone, "", setpoint_pv="xn", readback_pv="t2.B")
+    xp = Component(PVPositionerSoftDone, "", setpoint_pv="xp", readback_pv="t2.A")
     size = Component(PVPositionerSoftDone, "", setpoint_pv="size", readback_pv="t2.C")
     center = Component(PVPositionerSoftDone, "", setpoint_pv="center", readback_pv="t2.D")
 
