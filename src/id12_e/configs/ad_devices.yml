@@ -36,19 +36,20 @@ apstools.devices.area_detector_factory.ad_creator:
       read_path_template: /PLACEHOLDER/bluesky/
       write_path_template: /PLACEHOLDER/ioc/
       kind: normal
-- name: bfs2
-  prefix: "12idBFS2:"
-  # 12-ID-C FLIR Blackfly-S BFS-PGE-16S2C (ADSpinnaker)
-  labels: [ "area_detector", "detectors" ]
-  plugins:
-  - cam: { class: id12_common.devices.area_detector.ID12_SpinnakerCam_V34 }
-  - image: { class: id12_common.devices.area_detector.ID12_ImagePlugin }
-  - hdf1:
-      class: id12_common.devices.area_detector.ID12_EpicsFileNameHDF5Plugin
-      # TODO: set to the real 12-ID-B DM directory (as Bluesky sees it / as the IOC sees it)
-      read_path_template: /PLACEHOLDER/bluesky/
-      write_path_template: /PLACEHOLDER/ioc/
-      kind: normal
+
+# - name: bfs2
+#   prefix: "12idBFS2:"
+#   # 12-ID-C FLIR Blackfly-S BFS-PGE-16S2C (ADSpinnaker)
+#   labels: [ "area_detector", "detectors" ]
+#   plugins:
+#   - cam: { class: id12_common.devices.area_detector.ID12_SpinnakerCam_V34 }
+#   - image: { class: id12_common.devices.area_detector.ID12_ImagePlugin }
+#   - hdf1:
+#       class: id12_common.devices.area_detector.ID12_EpicsFileNameHDF5Plugin
+#       # TODO: set to the real 12-ID-B DM directory (as Bluesky sees it / as the IOC sees it)
+#       read_path_template: /PLACEHOLDER/bluesky/
+#       write_path_template: /PLACEHOLDER/ioc/
+#       kind: normal
 
 # TODO (deferred): AVT Mako area-detector cameras — decide package (id12_b vs id12_e), then add.
 #   12idPS1: (Mako G319B), 12idPS2: (Mako G319C), 12idPS3: (Mako G319C).
