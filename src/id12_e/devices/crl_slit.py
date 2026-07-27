@@ -38,35 +38,26 @@ from ophyd import Device
 from ophyd import EpicsSignal
 
 
-class Optics2Slit1D(Device):
-    """
-    EPICS synApps optics 2slit.db 1D support: xn, xp, size, center, sync
-
-    "sync" is used to tell the EPICS 2slit database to synchronize the
-    virtual slit values with the actual motor positions.
-    """
-
-    xn = Component(PVPositionerSoftDone, "", setpoint_pv="xn", readback_pv="t2.B")
-    xp = Component(PVPositionerSoftDone, "", setpoint_pv="xp", readback_pv="t2.A")
-    size = Component(PVPositionerSoftDone, "", setpoint_pv="size", readback_pv="t2.C")
-    center = Component(PVPositionerSoftDone, "", setpoint_pv="center", readback_pv="t2.D")
-
-    sync = Component(EpicsSignal, "sync", put_complete=True, kind="omitted")
-
 
 class Optics2Slit2D_HV(Device):
     """
     EPICS synApps optics 2slit.db 2D support: h.xn, h.xp, v.xn, v.xp
     """
 
-    h = Component(Optics2Slit1D, "H")
-    v = Component(Optics2Slit1D, "V")
+    h_size = Component(PVPositionerSoftDone, "m8")
+    v_size = Component(PVPositionerSoftDone, "m7")
+    h_center = Component(PVPositionerSoftDone, "m6")
+    v_center = Component(PVPositionerSoftDone, "m5")
+
 
     @property
     def geometry(self):
         """Return the slit 2D size and center as a namedtuple."""
         pppp = [
-            round(obj.position, obj.precision) for obj in (self.h.size, self.v.size, self.h.center, self.v.center)
+            round(obj.position, obj.precision) for obj in (self.h_size,
+                                                           self.v_size,
+                                                           self.h_center,
+                                                           self.v_center)
         ]
 
         return SlitGeometry(*pppp)
@@ -76,7 +67,7 @@ class Optics2Slit2D_HV(Device):
         # first, test the input by assigning it to local vars
         width, height, x, y = value
 
-        self.h.size.move(width)
-        self.v.size.move(height)
-        self.h.center.move(x)
-        self.v.center.move(y)
+        self.h_size.move(width)
+        self.v_size.move(height)
+        self.h_center.move(x)
+        self.v_center.move(y)
