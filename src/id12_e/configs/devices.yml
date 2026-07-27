@@ -138,14 +138,16 @@ ophyd.scaler.ScalerCH:
   labels: [ "scalers"]
 
 apstools.synApps.Optics2Slit2D_HV:
-- name: crl_slit                    # 12idc — 2-slit (V on m3/m4, H on m5/m6)
-  prefix: "12idc:Slit1"
-  labels: [ "slits" ]
 - name: cl_slit                  # 12idc — CL 2-slit (V on m19/m20, H on m17/m18)
   prefix: "12idc:CL_Slit"
   labels: [ "slits" ]
 - name: mh2_slit                # 12ida2 — mini-hutch 2-slit (V m37/m38, H m39/m40)
   prefix: "12ida2:MH2_Slit_"
+  labels: [ "slits" ]
+
+id12_e.devices.crl_slit.Optics2Slit2D_HV:
+- name: crl_slit                    # 12idc — 2-slit (V on m3/m4, H on m5/m6)
+  prefix: "12idc:Slit1"
   labels: [ "slits" ]
 
 id12_common.devices.shutters.UniblitzShutter:
