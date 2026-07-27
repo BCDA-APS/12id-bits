@@ -33,7 +33,7 @@ class BK9205B(Device):
     voltage_rbv = Component(EpicsSignalRO, "Vset_rbk")
     current_rbv = Component(EpicsSignalRO, "Iset_rbk")
     voltage_limit = Component(EpicsSignal, "Vlimit_Set")
-    current_limit = Component(EpicsSignal, "Ilimit_Set")
+    # current_limit = Component(EpicsSignal, "Ilimit_Set")
 
     # --- output enable (momentary) ---------------------------------------
     on = Component(EpicsSignal, "On", kind="omitted")
