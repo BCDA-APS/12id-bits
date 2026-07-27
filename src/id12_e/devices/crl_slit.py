@@ -44,10 +44,10 @@ class Optics2Slit2D_HV(Device):
     EPICS synApps optics 2slit.db 2D support: h.xn, h.xp, v.xn, v.xp
     """
 
-    h_size = Component(PVPositionerSoftDone, "m8")
-    v_size = Component(PVPositionerSoftDone, "m7")
-    h_center = Component(PVPositionerSoftDone, "m6")
-    v_center = Component(PVPositionerSoftDone, "m5")
+    h_size = Component(PVPositionerSoftDone, "m8", setpoint_pv="VAL", readback_pv="RBV")
+    v_size = Component(PVPositionerSoftDone, "m7", setpoint_pv="VAL", readback_pv="RBV")
+    h_center = Component(PVPositionerSoftDone, "m6", setpoint_pv="VAL", readback_pv="RBV")
+    v_center = Component(PVPositionerSoftDone, "m5", setpoint_pv="VAL", readback_pv="RBV")
 
 
     @property
