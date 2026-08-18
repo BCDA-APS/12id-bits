@@ -104,6 +104,15 @@ if host_on_aps_subnet():
 # Devices with the label 'baseline' will be added to the baseline stream.
 setup_baseline_stream(sd, oregistry, connect=False)
 
+# SAXS/WAXS acquisition plans translated from APS12_SAXSDaq (shared module).
+from id12_common.plans.saxs_plans import align_theta  # noqa: E402, F401
+from id12_common.plans.saxs_plans import saxs_count  # noqa: E402, F401
+from id12_common.plans.saxs_plans import saxs_list_scan  # noqa: E402, F401
+from id12_common.plans.saxs_plans import saxs_rel_grid  # noqa: E402, F401
+from id12_common.plans.saxs_plans import saxs_rel_scan  # noqa: E402, F401
+from id12_common.plans.saxs_plans import saxs_temperature_series  # noqa: E402, F401
+from id12_common.plans.saxs_plans import saxs_time_series  # noqa: E402, F401
+
 from .plans.sim_plans import sim_count_plan  # noqa: E402, F401
 from .plans.sim_plans import sim_print_plan  # noqa: E402, F401
 from .plans.sim_plans import sim_rel_scan_plan  # noqa: E402, F401
