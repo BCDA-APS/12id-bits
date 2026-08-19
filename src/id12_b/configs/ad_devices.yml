@@ -16,7 +16,7 @@ apstools.devices.area_detector_factory.ad_creator:
       write_path_template: /PLACEHOLDER/ioc/
       kind: normal
 
-- name: eiger
+- name: eiger9m
   prefix: "12idbEGR:"
   # 12-ID-B Dectris Eiger2 9M
   labels: [ "area_detector", "detectors" ]

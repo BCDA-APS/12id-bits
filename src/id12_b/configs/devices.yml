@@ -20,7 +20,43 @@ id12_common.devices.delays.DG645Delay:
   prefix: "12idb:DG1:"
   labels: [ "delaygen"]
 
+id12_common.devices.struck.Struck:
+- name: struck
+  prefix: "12idc:3820:"
+  labels: [ "scalers" ]
+
 apstools.devices.motor_factory.mb_creator:
+- name: saxs_sample_stage
+  labels: [ "sample"]
+  prefix: "12idb:"
+  class_name: SampleStage
+  motors:
+    sth: m24
+    stv: m23
+    sah: m47
+    sav: m48
+    samz: m46
+    th: m31
+    chi: m45
+    phi: m8
+    nozzle: m16
+
+- name: saxs_beamstop
+  labels: [ "beamstop"]
+  prefix: "12idb:"
+  class_name: BeamstopStage
+  motors:
+    hor: m26
+    ver: m25
+
+- name: pinhole
+  labels: [ "pinhole"]
+  prefix: "12idb:"
+  class_name: Pinhole
+  motors:
+    hor: m22
+    ver: m21
+
 - name: hxp_b                      # 12idbHXP — PI C-887 hexapod (GCS2)
   labels: [ "hexapod" ]
   prefix: "12idbHXP:"
